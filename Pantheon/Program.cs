@@ -115,6 +115,9 @@ namespace Pantheon___The_Artisan_of_War
             var FarmKey = Config.Item("farmKey").GetValue<KeyBind>().Active;
             var JungleClearKey = Config.Item("jungleKey").GetValue<KeyBind>().Active;
 
+            Orbwalker.SetAttacks(!ObjectManager.Player.IsChanneling ? true : false);
+            Orbwalker.SetMovement(!ObjectManager.Player.IsChanneling ? true : false);
+
             if (ComboKey)
                 Combo(Target);
             else
@@ -135,8 +138,6 @@ namespace Pantheon___The_Artisan_of_War
                 if (Config.Item("killSteal").GetValue<bool>())
                     Killsteal();
             }
-            Orbwalker.SetAttacks(ObjectManager.Player.IsChanneling ? false : true);
-            Orbwalker.SetMovement(ObjectManager.Player.IsChanneling ? false : true);
         }
 
         private static void Combo(Obj_AI_Hero Target)
@@ -161,13 +162,17 @@ namespace Pantheon___The_Artisan_of_War
 
             if (Target != null && ObjectManager.Player.Mana > Mana)
             {
-                if (Config.Item("hMode").GetValue<StringList>().SelectedIndex == 0)
-                    Q.CastOnUnit(Target);
-                else
+                switch (Config.Item("hMode").GetValue<StringList>().SelectedIndex)
                 {
-                    W.CastOnUnit(Target);
-                    if (!Target.CanMove)
-                        E.Cast(Target.Position);
+                    case 0: Q.CastOnUnit(Target);
+                        break;
+                    case 1:
+                        {
+                            W.CastOnUnit(Target);
+                            if (!Target.CanMove)
+                                E.Cast(Target.Position);
+                            break;
+                        }
                 }
             }
         }
