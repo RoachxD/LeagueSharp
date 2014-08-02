@@ -160,7 +160,8 @@ namespace Pantheon___The_Artisan_of_War
 
             if (Target != null && ObjectManager.Player.Mana > Mana)
             {
-                switch ((int) Config.Item("hMode").GetValue<StringList>().SelectedIndex)
+                int MenuItem = Config.Item("hMode").GetValue<StringList>().SelectedIndex;
+                switch (MenuItem)
                 {
                     case 0:
                         Q.CastOnUnit(Target);
