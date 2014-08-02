@@ -22,7 +22,6 @@ namespace Pantheon___The_Artisan_of_War
         public static Spell Q;
         public static Spell W;
         public static Spell E;
-        public static Spell Ignite;
 
         public static Menu Config;
 
@@ -38,7 +37,6 @@ namespace Pantheon___The_Artisan_of_War
             Q = new Spell(SpellSlot.Q, 600);
             W = new Spell(SpellSlot.W, 600);
             E = new Spell(SpellSlot.E, 700);
-            Ignite = new Spell(Utility.GetSpellSlot(ObjectManager.Player, "SummonerIgnite"), 600);
 
             Spells.Add(Q);
             Spells.Add(W);
@@ -251,10 +249,11 @@ namespace Pantheon___The_Artisan_of_War
 
                 if (Config.Item("autoIgnite").GetValue<bool>())
                 {
-                    if (Utility.GetSpellSlot(ObjectManager.Player, "SummonerIgnite") != SpellSlot.Unknown)
+                    SpellSlot Ignite = Utility.GetSpellSlot(ObjectManager.Player, "SummonerIgnite");
+                    if (Ignite != SpellSlot.Unknown)
                     {
                         if (DamageLib.getDmg(enemy, DamageLib.SpellType.IGNITE) >= enemy.Health)
-                            Ignite.CastOnUnit(enemy);
+                            ObjectManager.Player.SummonerSpellbook.CastSpell(Ignite, enemy);
                     }
                 }
             }
@@ -262,9 +261,9 @@ namespace Pantheon___The_Artisan_of_War
 
         public static void UseItems(Obj_AI_Hero Target)
         {
-            int[] ItemIDs = new int[] { 3188, 3153, 3144, 3128, 3146, 3180, 3131, 3184, 3074, 3077, 3142 };
+            List<int> ItemIDs = new List<int> { 3188, 3153, 3144, 3128, 3146, 3180, 3131, 3184, 3074, 3077, 3142 };
 
-            foreach (var Item in ItemIDs)
+            foreach (int Item in ItemIDs)
             {
                 if (Items.HasItem(Item) && Items.CanUseItem(Item))
                     Items.UseItem(Item, Target);
