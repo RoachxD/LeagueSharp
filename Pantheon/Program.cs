@@ -50,7 +50,7 @@ namespace Pantheon___The_Artisan_of_War
 
             Config.AddSubMenu(new Menu("Harass Settings", "harass")); // Done
             Config.SubMenu("harass").AddItem(new MenuItem("harassKey", "Harass Key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press))); // Done
-            Config.SubMenu("harass").AddItem(new MenuItem("hMode", "Harass Mode: ").SetValue(new StringList(new[] { "Q", "W+E" }, 1))); // Done
+            Config.SubMenu("harass").AddItem(new MenuItem("hMode", "Harass Mode: ").SetValue(new StringList(new[] { "Q", "W+E" }, 0))); // Done
             Config.SubMenu("harass").AddItem(new MenuItem("autoQ", "Auto-Q when Target in Range").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Toggle))); // Done
             Config.SubMenu("harass").AddItem(new MenuItem("aQT", "Don't Auto-Q if in enemy Turret Range").SetValue(true)); // Done
             Config.SubMenu("harass").AddItem(new MenuItem("harassMana", "Min. Mana Percent: ").SetValue(new Slider(50, 100, 0))); // Done
@@ -160,17 +160,16 @@ namespace Pantheon___The_Artisan_of_War
 
             if (Target != null && ObjectManager.Player.Mana > Mana)
             {
-                switch (Config.Item("hMode").GetValue<StringList>().SelectedIndex)
+                switch ((int) Config.Item("hMode").GetValue<StringList>().SelectedIndex)
                 {
-                    case 0: Q.CastOnUnit(Target);
+                    case 0:
+                        Q.CastOnUnit(Target);
                         break;
                     case 1:
-                        {
-                            W.CastOnUnit(Target);
-                            if (!Target.CanMove)
-                                E.Cast(Target.Position);
-                            break;
-                        }
+                        W.CastOnUnit(Target);
+                        if (!Target.CanMove)
+                            E.Cast(Target.Position);
+                        break;
                 }
             }
         }
@@ -194,7 +193,7 @@ namespace Pantheon___The_Artisan_of_War
                         }
                     }
                 }
-                else if (Config.Item("wFarm").GetValue<bool>() && W.IsReady())
+                if (Config.Item("wFarm").GetValue<bool>() && W.IsReady())
                 {
                     foreach (var minion in Minions)
                     {
@@ -237,7 +236,7 @@ namespace Pantheon___The_Artisan_of_War
                 else if (enemy.Health < W_Damage && W.IsReady())
                     W.CastOnUnit(enemy);
                 else if (enemy.Health < E_Damage && E.IsReady())
-                    E.CastOnUnit(enemy);
+                    E.Cast(enemy.Position);
                 else if (enemy.Health < Q_Damage + W_Damage && Q.IsReady() && W.IsReady())
                     W.CastOnUnit(enemy);
                 else if (enemy.Health < Q_Damage + E_Damage && Q.IsReady() && E.IsReady())
@@ -249,7 +248,7 @@ namespace Pantheon___The_Artisan_of_War
 
                 if (Config.Item("autoIgnite").GetValue<bool>())
                 {
-                    SpellSlot Ignite = Utility.GetSpellSlot(ObjectManager.Player, "SummonerIgnite");
+                    SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("SummonerDot");
                     if (Ignite != SpellSlot.Unknown)
                     {
                         if (DamageLib.getDmg(enemy, DamageLib.SpellType.IGNITE) >= enemy.Health)
