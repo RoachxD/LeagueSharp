@@ -1,12 +1,10 @@
 ﻿#region
 
 using System;
-using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 
 #endregion
 
@@ -25,7 +23,7 @@ namespace Pantheon___The_Artisan_of_War
 
         public static Menu Config;
 
-        static void Main(string[] args)
+        static void Main()
         {
             CustomEvents.Game.OnGameLoad += OnLoad;
         }
@@ -50,16 +48,16 @@ namespace Pantheon___The_Artisan_of_War
 
             Config.AddSubMenu(new Menu("Harass Settings", "harass")); // Done
                 Config.SubMenu("harass").AddItem(new MenuItem("harassKey", "Harass Key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press))); // Done
-                Config.SubMenu("harass").AddItem(new MenuItem("hMode", "Harass Mode: ").SetValue(new StringList(new[] { "Q", "W+E" }, 0))); // Done
+                Config.SubMenu("harass").AddItem(new MenuItem("hMode", "Harass Mode: ").SetValue(new StringList(new[] { "Q", "W+E" }))); // Done
                 Config.SubMenu("harass").AddItem(new MenuItem("autoQ", "Auto-Q when Target in Range").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Toggle))); // Done
                 Config.SubMenu("harass").AddItem(new MenuItem("aQT", "Don't Auto-Q if in enemy Turret Range").SetValue(true)); // Done
-                Config.SubMenu("harass").AddItem(new MenuItem("harassMana", "Min. Mana Percent: ").SetValue(new Slider(50, 100, 0))); // Done
+                Config.SubMenu("harass").AddItem(new MenuItem("harassMana", "Min. Mana Percent: ").SetValue(new Slider(50))); // Done
 
             Config.AddSubMenu(new Menu("Farming Settings", "farm")); // Done
                 Config.SubMenu("farm").AddItem(new MenuItem("farmKey", "Farming Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press))); // Done
                 Config.SubMenu("farm").AddItem(new MenuItem("qFarm", "Farm with Spear Shot (Q)").SetValue(true)); // Done
                 Config.SubMenu("farm").AddItem(new MenuItem("wFarm", "Farm with Aegis of Zeonia (W)").SetValue(true)); // Done
-                Config.SubMenu("farm").AddItem(new MenuItem("farmMana", "Min. Mana Percent: ").SetValue(new Slider(50, 100, 0))); // Done
+                Config.SubMenu("farm").AddItem(new MenuItem("farmMana", "Min. Mana Percent: ").SetValue(new Slider(50))); // Done
 
             Config.AddSubMenu(new Menu("Jungle Clear Settings", "jungle")); // Done
                 Config.SubMenu("jungle").AddItem(new MenuItem("jungleKey", "Jungle Clear Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press))); // Done
@@ -104,39 +102,39 @@ namespace Pantheon___The_Artisan_of_War
                     Utility.DrawCircle(ObjectManager.Player.Position, spell.Range, Config.Item(spell.Slot + "Draw").GetValue<Circle>().Color);
             }
 
-            var Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-            if (Config.Item("Target").GetValue<Circle>().Active && Target != null)
-                Utility.DrawCircle(Target.Position, 50, Config.Item("Target").GetValue<Circle>().Color, 1, 50);
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if (Config.Item("Target").GetValue<Circle>().Active && target != null)
+                Utility.DrawCircle(target.Position, 50, Config.Item("Target").GetValue<Circle>().Color, 1, 50);
         }
 
         private static void OnGameUpdate(EventArgs args)
         {
-            var Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
-            var ComboKey = Config.Item("comboKey").GetValue<KeyBind>().Active;
-            var HarassKey = Config.Item("harassKey").GetValue<KeyBind>().Active;
-            var FarmKey = Config.Item("farmKey").GetValue<KeyBind>().Active;
-            var JungleClearKey = Config.Item("jungleKey").GetValue<KeyBind>().Active;
+            var comboKey = Config.Item("comboKey").GetValue<KeyBind>().Active;
+            var harassKey = Config.Item("harassKey").GetValue<KeyBind>().Active;
+            var farmKey = Config.Item("farmKey").GetValue<KeyBind>().Active;
+            var jungleClearKey = Config.Item("jungleKey").GetValue<KeyBind>().Active;
 
-            Orbwalker.SetAttacks(!ObjectManager.Player.IsChanneling ? true : false);
-            Orbwalker.SetMovement(!ObjectManager.Player.IsChanneling ? true : false);
+            Orbwalker.SetAttacks(!ObjectManager.Player.IsChanneling);
+            Orbwalker.SetMovement(!ObjectManager.Player.IsChanneling);
 
-            if (ComboKey && Target != null)
-                Combo(Target);
+            if (comboKey && target != null)
+                Combo(target);
             else
             {
-                if (HarassKey && Target != null)
-                    Harass(Target);
+                if (harassKey && target != null)
+                    Harass(target);
 
-                if (FarmKey)
+                if (farmKey)
                     Farm();
 
-                if (JungleClearKey)
+                if (jungleClearKey)
                     JungleClear();
 
-                if (Config.Item("autoQ").GetValue<KeyBind>().Active && Target != null)
-                    if (Config.Item("aQT").GetValue<bool>() ? !Utility.UnderTurret(ObjectManager.Player, true) : Utility.UnderTurret(ObjectManager.Player, true) && ObjectManager.Player.Distance(Target) <= Q.Range)
-                        Q.CastOnUnit(Target,  Config.Item("usePackets").GetValue<bool>());
+                if (Config.Item("autoQ").GetValue<KeyBind>().Active && target != null)
+                    if (Config.Item("aQT").GetValue<bool>() ? !Utility.UnderTurret(ObjectManager.Player, true) : Utility.UnderTurret(ObjectManager.Player, true) && ObjectManager.Player.Distance(target) <= Q.Range)
+                        Q.CastOnUnit(target,  Config.Item("usePackets").GetValue<bool>());
 
                 if (Config.Item("killSteal").GetValue<bool>())
                     Killsteal();
@@ -147,7 +145,7 @@ namespace Pantheon___The_Artisan_of_War
         {
             if (Config.Item("stopChannel").GetValue<bool>())
             {
-                String[] InterruptingSpells = {
+                String[] interruptingSpells = {
                     "AbsoluteZero",
                     "AlZaharNetherGrasp", 
 		            "CaitlynAceintheHole", 
@@ -164,9 +162,9 @@ namespace Pantheon___The_Artisan_of_War
 		            "UrgotSwap2"
                 };
 
-                foreach (string InterruptingSpellName in InterruptingSpells)
+                foreach (string interruptingSpellName in interruptingSpells)
                 {
-                    if (unit.Team != ObjectManager.Player.Team && args.SData.Name == InterruptingSpellName && unit != null)
+                    if (unit.Team != ObjectManager.Player.Team && args.SData.Name == interruptingSpellName)
                     {
                         if (ObjectManager.Player.Distance(unit) <= W.Range && W.IsReady())
                             W.CastOnUnit(unit, Config.Item("usePackets").GetValue<bool>());
@@ -175,38 +173,38 @@ namespace Pantheon___The_Artisan_of_War
             }
         }
 
-        private static void Combo(Obj_AI_Hero Target)
+        private static void Combo(Obj_AI_Hero target)
         {
-            if (Target != null)
+            if (target != null)
             {
                 if (Q.IsReady())
-                    Q.CastOnUnit(Target, Config.Item("usePackets").GetValue<bool>());
+                    Q.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
                 if (W.IsReady())
-                    W.CastOnUnit(Target, Config.Item("usePackets").GetValue<bool>());
-                if (E.IsReady() && !Target.CanMove)
-                    E.Cast(Target.Position, Config.Item("usePackets").GetValue<bool>());
+                    W.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
+                if (E.IsReady() && !target.CanMove)
+                    E.Cast(target.Position, Config.Item("usePackets").GetValue<bool>());
 
                 if (Config.Item("comboItems").GetValue<bool>())
-                    UseItems(Target);
+                    UseItems(target);
             }
         }
 
-        private static void Harass(Obj_AI_Hero Target)
+        private static void Harass(Obj_AI_Hero target)
         {
-            var Mana = ObjectManager.Player.MaxMana * (Config.Item("harassMana").GetValue<Slider>().Value / 100);
+            var mana = ObjectManager.Player.MaxMana * (Config.Item("harassMana").GetValue<Slider>().Value / 100.0);
 
-            if (Target != null && ObjectManager.Player.Mana > Mana)
+            if (target != null && ObjectManager.Player.Mana > mana)
             {
-                int MenuItem = Config.Item("hMode").GetValue<StringList>().SelectedIndex;
-                switch (MenuItem)
+                int menuItem = Config.Item("hMode").GetValue<StringList>().SelectedIndex;
+                switch (menuItem)
                 {
                     case 0:
-                        Q.CastOnUnit(Target, Config.Item("usePackets").GetValue<bool>());
+                        Q.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
                         break;
                     case 1:
-                        W.CastOnUnit(Target, Config.Item("usePackets").GetValue<bool>());
-                        if (!Target.CanMove)
-                            E.Cast(Target.Position, Config.Item("usePackets").GetValue<bool>());
+                        W.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
+                        if (!target.CanMove)
+                            E.Cast(target.Position, Config.Item("usePackets").GetValue<bool>());
                         break;
                 }
             }
@@ -214,17 +212,17 @@ namespace Pantheon___The_Artisan_of_War
 
         private static void Farm()
         {
-            var Minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            var Mana = ObjectManager.Player.MaxMana * (Config.Item("farmMana").GetValue<Slider>().Value / 100);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
+            var mana = ObjectManager.Player.MaxMana * (Config.Item("farmMana").GetValue<Slider>().Value / 100.0);
 
-            if (ObjectManager.Player.Mana > Mana)
+            if (ObjectManager.Player.Mana > mana)
             {
                 if (Config.Item("qFarm").GetValue<bool>() && Q.IsReady())
                 {
-                    foreach (var minion in Minions)
+                    foreach (var minion in minions)
                     {
-                        var Actual_HP = (HealthPrediction.GetHealthPrediction(minion, (int)(Geometry.Distance(ObjectManager.Player, minion) * 1000 / 1500)) <= minion.MaxHealth * 0.15) ? DamageLib.getDmg(minion, DamageLib.SpellType.Q) * 2 : DamageLib.getDmg(minion, DamageLib.SpellType.Q);
-                        if (minion != null && minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Geometry.Distance(ObjectManager.Player, minion) * 1000 / 1500)) <= Actual_HP)
+                        var actualHp = (HealthPrediction.GetHealthPrediction(minion, (int)(ObjectManager.Player.Distance(minion) * 1000 / 1500)) <= minion.MaxHealth * 0.15) ? DamageLib.getDmg(minion, DamageLib.SpellType.Q) * 2 : DamageLib.getDmg(minion, DamageLib.SpellType.Q);
+                        if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(ObjectManager.Player.Distance(minion) * 1000 / 1500)) <= actualHp)
                         {
                             Q.CastOnUnit(minion, Config.Item("usePackets").GetValue<bool>());
                             return;
@@ -233,9 +231,9 @@ namespace Pantheon___The_Artisan_of_War
                 }
                 if (Config.Item("wFarm").GetValue<bool>() && W.IsReady())
                 {
-                    foreach (var minion in Minions)
+                    foreach (var minion in minions)
                     {
-                        if (minion != null && minion.IsValidTarget(W.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(Geometry.Distance(ObjectManager.Player, minion))) < DamageLib.getDmg(minion, DamageLib.SpellType.W))
+                        if (minion != null && minion.IsValidTarget(W.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(ObjectManager.Player.Distance(minion))) < DamageLib.getDmg(minion, DamageLib.SpellType.W))
                         {
                             W.CastOnUnit(minion, Config.Item("usePackets").GetValue<bool>());
                             return;
@@ -247,11 +245,11 @@ namespace Pantheon___The_Artisan_of_War
 
         private static void JungleClear()
         {
-            var Mobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            var mobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
-            if (Mobs.Count > 0)
+            if (mobs.Count > 0)
             {
-                var mob = Mobs[0];
+                var mob = mobs[0];
                 if (mob != null)
                 {
                     if (Config.Item("qJungle").GetValue<bool>() && Q.IsReady())
@@ -266,59 +264,59 @@ namespace Pantheon___The_Artisan_of_War
 
         private static void Killsteal()
         {
-            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != ObjectManager.Player.Team && Utility.IsValidTarget(enemy) && enemy.IsVisible))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != ObjectManager.Player.Team && enemy.IsValidTarget() && enemy.IsVisible))
             {
                 if (enemy != null)
                 {
-                    var Q_Damage = (enemy.Health <= enemy.MaxHealth * 0.15) ? (DamageLib.getDmg(enemy, DamageLib.SpellType.Q) * 2) : DamageLib.getDmg(enemy, DamageLib.SpellType.Q); ;
-                    var W_Damage = DamageLib.getDmg(enemy, DamageLib.SpellType.W);
-                    var E_Damage = DamageLib.getDmg(enemy, DamageLib.SpellType.E);
+                    var qDamage = (enemy.Health <= enemy.MaxHealth * 0.15) ? (DamageLib.getDmg(enemy, DamageLib.SpellType.Q) * 2) : DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+                    var wDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.W);
+                    var eDamage = DamageLib.getDmg(enemy, DamageLib.SpellType.E);
 
-                    if (enemy.Health < Q_Damage && Q.IsReady())
+                    if (enemy.Health < qDamage && Q.IsReady())
                         Q.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < W_Damage && W.IsReady())
+                    else if (enemy.Health < wDamage && W.IsReady())
                         W.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < E_Damage && E.IsReady())
+                    else if (enemy.Health < eDamage && E.IsReady())
                         E.Cast(enemy.Position, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < Q_Damage + W_Damage && Q.IsReady() && W.IsReady())
+                    else if (enemy.Health < qDamage + wDamage && Q.IsReady() && W.IsReady())
                         W.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < Q_Damage + E_Damage && Q.IsReady() && E.IsReady())
+                    else if (enemy.Health < qDamage + eDamage && Q.IsReady() && E.IsReady())
                         Q.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < W_Damage + E_Damage && W.IsReady() && E.IsReady())
+                    else if (enemy.Health < wDamage + eDamage && W.IsReady() && E.IsReady())
                         W.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
-                    else if (enemy.Health < Q_Damage + W_Damage + E_Damage && Q.IsReady() && W.IsReady() && E.IsReady())
+                    else if (enemy.Health < qDamage + wDamage + eDamage && Q.IsReady() && W.IsReady() && E.IsReady())
                         Q.CastOnUnit(enemy, Config.Item("usePackets").GetValue<bool>());
 
                     if (Config.Item("autoIgnite").GetValue<bool>())
                     {
-                        SpellDataInst Ignite = ObjectManager.Player.SummonerSpellbook.Spells.FirstOrDefault(spell => spell.Name == "SummonerDot");
-                        if (Ignite != null && Ignite.Slot != SpellSlot.Unknown && Ignite.State == SpellState.Ready)
+                        SpellDataInst ignite = ObjectManager.Player.SummonerSpellbook.Spells.FirstOrDefault(spell => spell.Name == "SummonerDot");
+                        if (ignite != null && ignite.Slot != SpellSlot.Unknown && ignite.State == SpellState.Ready)
                         {
                             if (50 + ObjectManager.Player.Level * 20 >= enemy.Health)
-                                ObjectManager.Player.SummonerSpellbook.CastSpell(Ignite.Slot, enemy);
+                                ObjectManager.Player.SummonerSpellbook.CastSpell(ignite.Slot, enemy);
                         }
                     }
                 }
             }
         }
 
-        public static void UseItems(Obj_AI_Hero Target)
+        public static void UseItems(Obj_AI_Hero target)
         {
-            if (Target != null)
+            if (target != null)
             {
-                Int16[] TargetedItems = { 3188, 3153, 3144, 3128, 3146, 3184 };
-                Int16[] NonTargetedItems = { 3180, 3131, 3074, 3077, 3142 };
+                Int16[] targetedItems = { 3188, 3153, 3144, 3128, 3146, 3184 };
+                Int16[] nonTargetedItems = { 3180, 3131, 3074, 3077, 3142 };
 
-                foreach (int ItemID in TargetedItems)
+                foreach (var itemId in targetedItems)
                 {
-                    if (Items.HasItem(ItemID) && Items.CanUseItem(ItemID))
-                        Items.UseItem(ItemID, Target);
+                    if (Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                        Items.UseItem(itemId, target);
                 }
 
-                foreach (int ItemID in NonTargetedItems)
+                foreach (var itemId in nonTargetedItems)
                 {
-                    if (Items.HasItem(ItemID) && Items.CanUseItem(ItemID))
-                        Items.UseItem(ItemID);
+                    if (Items.HasItem(itemId) && Items.CanUseItem(itemId))
+                        Items.UseItem(itemId);
                 }
             }
         }
