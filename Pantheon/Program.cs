@@ -112,9 +112,6 @@ namespace Pantheon
             Orbwalker.SetAttacks(!UsingE());
             Orbwalker.SetMovement(!UsingE());
 
-            foreach (var buff in ObjectManager.Player.Buffs.Where(buff => buff.Name != "pantheonepassive" && buff.Name != "pantheonpassivecounter"))
-                Game.PrintChat(buff.Name);
-
             if (comboKey && target != null)
                 Combo(target);
             else
