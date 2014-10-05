@@ -163,6 +163,8 @@ namespace Pantheon
             if (!unit.IsMe && spell.SData.Name != "PantheonE") return;
 
             UsingE = true;
+
+            Utility.DelayAction.Add(750, () => UsingE = false);
         }
 
         private static void Game_OnObjectDelete(GameObject sender, EventArgs args)
