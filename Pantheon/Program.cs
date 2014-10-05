@@ -23,6 +23,8 @@ namespace Pantheon
 
         public static SpellSlot IgniteSlot;
 
+        public static bool UsingE = false;
+
         public static Menu Config;
 
         static void Main(string[] args)
@@ -93,14 +95,16 @@ namespace Pantheon
             Utility.HpBarDamageIndicator.DamageToUnit = ComboDamage;
             Utility.HpBarDamageIndicator.Enabled = true;
 
-            Drawing.OnDraw += OnDraw;
-            Game.OnGameUpdate += OnGameUpdate;
-            Interrupter.OnPossibleToInterrupt += OnPossibleToInterrupt;
+            Drawing.OnDraw += Drawing_OnDraw;
+            Game.OnGameUpdate += Game_OnGameUpdate;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            Obj_AI_Base.OnProcessSpellCast += Game_OnProcessSpell;
+            GameObject.OnDelete += Game_OnObjectDelete;
 
             Game.PrintChat("<font color=\"#00BFFF\">Pantheon# -</font> <font color=\"#FFFFFF\">Loaded</font>");
         }
 
-        private static void OnGameUpdate(EventArgs args)
+        private static void Game_OnGameUpdate(EventArgs args)
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
@@ -109,8 +113,8 @@ namespace Pantheon
             var farmKey = Config.Item("farmKey").GetValue<KeyBind>().Active;
             var jungleClearKey = Config.Item("jungleKey").GetValue<KeyBind>().Active;
 
-            Orbwalker.SetAttacks(!UsingE());
-            Orbwalker.SetMovement(!UsingE());
+            Orbwalker.SetAttacks(!UsingEorR());
+            Orbwalker.SetMovement(!UsingEorR());
 
             if (comboKey && target != null)
                 Combo(target);
@@ -131,7 +135,7 @@ namespace Pantheon
             }
         }
 
-        private static void OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
             if (Config.Item("mDraw").GetValue<bool>())
                 return;
@@ -146,7 +150,7 @@ namespace Pantheon
                 Utility.DrawCircle(target.Position, 50, Config.Item("Target").GetValue<Circle>().Color, 1, 50);
         }
 
-        private static void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!Config.Item("stopChannel").GetValue<bool>()) return;
             if (!(ObjectManager.Player.Distance(unit) <= W.Range) || !W.IsReady()) return;
@@ -154,17 +158,31 @@ namespace Pantheon
             W.CastOnUnit(unit, Config.Item("usePackets").GetValue<bool>());
         }
 
+        private static void Game_OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
+        {
+            if (!unit.IsMe && spell.SData.Name != "PantheonE") return;
+
+            UsingE = true;
+        }
+
+        private static void Game_OnObjectDelete(GameObject sender, EventArgs args)
+        {
+            if (!sender.Name.Contains("Pantheon_") || !sender.Name.Contains("_E_cas.troy")) return;
+
+            UsingE = false;
+        }
+
         private static void Combo(Obj_AI_Base target)
         {
             if (target == null) return;
-            if (UsingE()) return;
+            if (UsingEorR()) return;
 
             if (Q.IsReady())
                 Q.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
             if (W.IsReady())
                 W.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
-            if (E.IsReady() && !target.CanMove)
-                E.Cast(target.Position, Config.Item("usePackets").GetValue<bool>());
+            if (E.IsReady() && !W.IsReady())
+                E.Cast(target, Config.Item("usePackets").GetValue<bool>());
 
             if (Config.Item("comboItems").GetValue<bool>())
                 UseItems(target);
@@ -179,7 +197,7 @@ namespace Pantheon
         private static void Harass(Obj_AI_Base target)
         {
             if (target == null) return;
-            if (UsingE()) return;
+            if (UsingEorR()) return;
 
             var mana = ObjectManager.Player.MaxMana * (Config.Item("harassMana").GetValue<Slider>().Value / 100.0);
 
@@ -194,14 +212,14 @@ namespace Pantheon
                 case 1:
                     W.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
                     if (!target.CanMove)
-                        E.Cast(target.Position, Config.Item("usePackets").GetValue<bool>());
+                        E.Cast(target, Config.Item("usePackets").GetValue<bool>());
                     break;
             }
         }
 
         private static void Farm()
         {
-            if (UsingE()) return;
+            if (UsingEorR()) return;
 
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
             var mana = ObjectManager.Player.MaxMana * (Config.Item("farmMana").GetValue<Slider>().Value / 100.0);
@@ -228,7 +246,7 @@ namespace Pantheon
 
         private static void JungleClear()
         {
-            if (UsingE()) return;
+            if (UsingEorR()) return;
 
             var mobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
@@ -242,7 +260,7 @@ namespace Pantheon
             if (Config.Item("wJungle").GetValue<bool>() && W.IsReady())
                 W.CastOnUnit(mob, Config.Item("usePackets").GetValue<bool>());
             if (Config.Item("eJungle").GetValue<bool>() && E.IsReady())
-                E.Cast(mob.Position, Config.Item("usePackets").GetValue<bool>());
+                E.Cast(mob, Config.Item("usePackets").GetValue<bool>());
         }
 
         private static float ComboDamage(Obj_AI_Base target)
@@ -267,7 +285,7 @@ namespace Pantheon
         public static void UseItems(Obj_AI_Base target)
         {
             if (target == null) return;
-            if (UsingE()) return;
+            if (UsingEorR()) return;
 
             Int16[] targetedItems = { 3188, 3153, 3144, 3128, 3146, 3184 };
             Int16[] nonTargetedItems = { 3180, 3131, 3074, 3077, 3142 };
@@ -283,14 +301,9 @@ namespace Pantheon
             }
         }
 
-        public static bool UsingE()
+        public static bool UsingEorR()
         {
-            string buffName = null;
-
-            foreach (var buff in ObjectManager.Player.Buffs)
-                buffName = buff.Name;
-
-            return buffName == "pantheonesound";
+            return UsingE || ObjectManager.Player.IsChannelingImportantSpell() || ObjectManager.Player.HasBuff("patheonesound");
         }
     }
 }
