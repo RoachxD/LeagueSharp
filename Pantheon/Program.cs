@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -160,7 +160,11 @@ namespace Pantheon
 
         private static void Game_OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
-            if (!unit.IsMe && spell.SData.Name != "PantheonE") return;
+            if (!unit.IsMe) return;
+
+            UsingE = false;
+
+            if (spell.SData.Name.ToLower() != "pantheone") return;
 
             UsingE = true;
 
@@ -305,7 +309,10 @@ namespace Pantheon
 
         public static bool UsingEorR()
         {
-            return UsingE || ObjectManager.Player.IsChannelingImportantSpell() || ObjectManager.Player.HasBuff("patheonesound");
+            if (ObjectManager.Player.HasBuff("pantheonesound"))
+                UsingE = true;
+
+            return UsingE || ObjectManager.Player.IsChannelingImportantSpell();
         }
     }
 }
