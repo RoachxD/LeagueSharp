@@ -1,4 +1,6 @@
-﻿#region
+﻿using System.Globalization;
+
+#region
 
 using System;
 using System.Collections.Generic;
@@ -107,7 +109,25 @@ namespace Kayle
 
             Config.AddSubMenu(new Menu("Ultimate", "Ultimate"));
                 Config.SubMenu("Ultimate").AddSubMenu(new Menu("Allies", "Allies"));
-                    // Allies shits
+                    foreach (var ally in ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(ally => ally.IsAlly))
+                            Config.SubMenu("Allies").AddItem(new MenuItem("Ult" + ally.ChampionName, ChampionName)
+                                .SetValue(ally.ChampionName == _player.ChampionName));
+                Config.SubMenu("Ultimate").AddItem(new MenuItem("UltMinHP", "Min Percentage of HP").SetValue(new Slider(20, 1)));
+
+                Config.AddSubMenu(new Menu("JungleFarm", "Jungle Farm"));
+                Config.SubMenu("JungleFarm").AddItem(new MenuItem("UseQJ", "Use Q").SetValue(true));
+                Config.SubMenu("JungleFarm").AddItem(new MenuItem("UseEJ", "Use E").SetValue(true));
+                Config.SubMenu("JungleFarm").AddItem(new MenuItem("JungleFarmActive", "JungleFarm!").SetValue(
+                    new KeyBind(Config.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
+
+                Config.AddSubMenu(new Menu("Heal", "Heal"));
+                    Config.SubMenu("Heal").AddSubMenu(new Menu("Allies", "Allies"));
+                    foreach (var ally in ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(ally => ally.IsAlly))
+                        Config.SubMenu("Allies").AddItem(new MenuItem("Heal" + ally.ChampionName, ChampionName)
+                            .SetValue(ally.ChampionName == _player.ChampionName));
+                    Config.SubMenu("Heal").AddItem(new MenuItem("HealMinHP", "Min Percentage of HP").SetValue(new Slider(40, 1)));
                 
 
             Config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -248,6 +268,26 @@ namespace Kayle
                 E.Cast();
         }
 
+        private static void Ultimate()
+        {
+            foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
+                .Where(ally => ally.IsAlly && !ally.IsDead && ally.HasBuffOfType(BuffType.Damage))
+                    let menuItem = Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
+                        where menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value < (ally.Health/ally.MaxHealth) * 100
+                            select ally)
+                R.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
+        }
+
+        private static void Heal()
+        {
+            foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
+                .Where(ally => ally.IsAlly && !ally.IsDead)
+                    let menuItem = Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
+                        where menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value < (ally.Health / ally.MaxHealth) * 100
+                            select ally)
+                W.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
+        }
+
         private static float ComboDamage(Obj_AI_Base enemy)
         {
             var damage = 0d;
@@ -286,6 +326,9 @@ namespace Kayle
                 if (Config.Item("JungleFarmActive").GetValue<KeyBind>().Active)
                     JungleFarm();
             }
+
+            Ultimate();
+            Heal();
         }
 
         private static void Game_OnGameSendPacket(GamePacketEventArgs args)
@@ -306,6 +349,11 @@ namespace Kayle
                 if (menuItem.Active)
                     Utility.DrawCircle(_player.Position, spell.Range, menuItem.Color);
             }
+
+            var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+            var eDamage = 20 + ((E.Level - 1) * 10) + (_player.BaseAbilityDamage * 0.25);
+            if (Config.Item("ComboDamage").GetValue<bool>())
+                Drawing.DrawText(target.ServerPosition.X, target.ServerPosition.Y, Color.White, ((target.Health - ComboDamage(target)) / (RighteousFuryActive ? (eDamage) : (_player.GetAutoAttackDamage(target)))).ToString(CultureInfo.InvariantCulture));
         }
     }
 }
