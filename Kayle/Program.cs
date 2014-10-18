@@ -47,7 +47,7 @@ namespace Kayle
         {
             _player = ObjectManager.Player;
 
-            if (_player.BaseSkinName != ChampionName) return;
+            if (_player.ChampionName != ChampionName) return;
 
             Q = new Spell(SpellSlot.Q, 650f);
             W = new Spell(SpellSlot.W, 900f);
@@ -104,6 +104,11 @@ namespace Kayle
                 Config.SubMenu("JungleFarm").AddItem(new MenuItem("UseEJ", "Use E").SetValue(true));
                 Config.SubMenu("JungleFarm").AddItem(new MenuItem("JungleFarmActive", "JungleFarm!").SetValue(
                     new KeyBind(Config.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
+
+            Config.AddSubMenu(new Menu("Ultimate", "Ultimate"));
+                Config.SubMenu("Ultimate").AddSubMenu(new Menu("Allies", "Allies"));
+                    // Allies shits
+                
 
             Config.AddSubMenu(new Menu("Misc", "Misc"));
                 Config.SubMenu("Misc").AddItem(new MenuItem("UsePackets", "Use Packets").SetValue(true));
