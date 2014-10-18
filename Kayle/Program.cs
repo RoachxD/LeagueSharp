@@ -111,7 +111,7 @@ namespace Kayle
                 Config.SubMenu("Ultimate").AddSubMenu(new Menu("Allies", "Allies"));
                     foreach (var ally in ObjectManager.Get<Obj_AI_Hero>()
                         .Where(ally => ally.IsAlly))
-                            Config.SubMenu("Allies").AddItem(new MenuItem("Ult" + ally.ChampionName, ally.ChampionName)
+                            Config.SubMenu("Ultimate").SubMenu("Allies").AddItem(new MenuItem("Ult" + ally.ChampionName, ally.ChampionName)
                                 .SetValue(ally.ChampionName == _player.ChampionName));
                 Config.SubMenu("Ultimate").AddItem(new MenuItem("UltMinHP", "Min Percentage of HP").SetValue(new Slider(20, 1)));
 
@@ -119,7 +119,7 @@ namespace Kayle
                 Config.SubMenu("Heal").AddSubMenu(new Menu("Allies", "Allies"));
                 foreach (var ally in ObjectManager.Get<Obj_AI_Hero>()
                     .Where(ally => ally.IsAlly))
-                    Config.SubMenu("Allies").AddItem(new MenuItem("Heal" + ally.ChampionName, ally.ChampionName)
+                    Config.SubMenu("Heal").SubMenu("Allies").AddItem(new MenuItem("Heal" + ally.ChampionName, ally.ChampionName)
                         .SetValue(ally.ChampionName == _player.ChampionName));
                 Config.SubMenu("Heal").AddItem(new MenuItem("HealMinHP", "Min Percentage of HP").SetValue(new Slider(40, 1)));
                 
