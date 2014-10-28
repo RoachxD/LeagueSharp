@@ -1,10 +1,10 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -282,7 +282,7 @@ namespace Kayle
 
             Obj_AI_Base mob = mobs[0];
 
-            if (Q.IsReady() && useQ)
+            if (useQ && Q.IsReady())
                 Q.Cast(mob, Config.Item("UsePackets").GetValue<bool>());
 
             if (useE && E.IsReady())
@@ -294,7 +294,9 @@ namespace Kayle
             foreach (Obj_AI_Hero ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly && !ally.IsDead && ally.HasBuffOfType(BuffType.Damage))
                 let menuItem = Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
-                where menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100
+                where
+                    menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100 &&
+                    R.IsReady()
                 select ally)
                 R.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
         }
@@ -304,7 +306,9 @@ namespace Kayle
             foreach (Obj_AI_Hero ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly && !ally.IsDead)
                 let menuItem = Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
-                where menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100
+                where
+                    menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100 &&
+                    W.IsReady()
                 select ally)
                 W.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
         }
@@ -325,7 +329,7 @@ namespace Kayle
             if (IgniteSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
-            return (float) damage * (Dfg.IsReady() ? 1.2f : 1);
+            return (float) damage*(Dfg.IsReady() ? 1.2f : 1);
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -374,7 +378,7 @@ namespace Kayle
             }
 
             Obj_AI_Hero target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            double eDamage = 20 + ((E.Level - 1) * 10) + (_player.BaseAbilityDamage * 0.25);
+            double eDamage = 20 + ((E.Level - 1)*10) + (_player.BaseAbilityDamage*0.25);
             if (Config.Item("ComboDamage").GetValue<bool>())
                 Drawing.DrawText(target.ServerPosition.X, target.ServerPosition.Y, Color.White,
                     ((target.Health - ComboDamage(target))/
