@@ -10,6 +10,13 @@ Champion Scripts:
 
 Utility Scripts:
 ===========
+* Advanced Turn Around
+  * I guess the name says it all.
+  * But for those who don't undestand what this is, well, it makes sure you won't get caught by spells like:
+    * Cassiopeia's Petrifying Gaze (R) [Stun]
+    * Shaco's Two-Shiv Poison (E) [Extra Damage]
+    * Tryndamere's Mocking Shout (W) [Slow]
+
 * Item Swapper
   * It swaps Items using the Numpad
     * 4 - Item Slot 1
