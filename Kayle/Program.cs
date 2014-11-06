@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using System;
 using System.Collections.Generic;
@@ -295,7 +295,7 @@ namespace Kayle
                 .Where(ally => ally.IsAlly && !ally.IsDead && ally.HasBuffOfType(BuffType.Damage))
                 let menuItem = Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
                 where
-                    menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100 &&
+                    menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
                     R.IsReady()
                 select ally)
                 R.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
@@ -307,7 +307,7 @@ namespace Kayle
                 .Where(ally => ally.IsAlly && !ally.IsDead)
                 let menuItem = Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
                 where
-                    menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value <= (ally.Health/ally.MaxHealth) * 100 &&
+                    menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
                     W.IsReady()
                 select ally)
                 W.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
