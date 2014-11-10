@@ -292,7 +292,7 @@ namespace Kayle
         private static void Ultimate()
         {
             foreach (Obj_AI_Hero ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
-                .Where(ally => ally.IsAlly && !ally.IsDead && ally.HasBuffOfType(BuffType.Damage))
+                .Where(ally => ally.IsAlly && !ally.IsDead && Utility.CountEnemysInRange(1000) > 0)
                 let menuItem = Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
                 where
                     menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
@@ -303,6 +303,8 @@ namespace Kayle
 
         private static void Heal()
         {
+            if (_player.HasBuff("Recall")) return;
+            
             foreach (Obj_AI_Hero ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly && !ally.IsDead)
                 let menuItem = Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
