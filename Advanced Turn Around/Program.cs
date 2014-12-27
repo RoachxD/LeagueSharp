@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -12,7 +13,6 @@ namespace Advanced_Turn_Around
     internal class Program
     {
         private static readonly List<ChampionInfo> ExistingChampions = new List<ChampionInfo>();
-
         public static Menu Config;
 
         private static void Main(string[] args)
@@ -29,12 +29,12 @@ namespace Advanced_Turn_Around
             Config.AddItem(new MenuItem("Enable", "Enable the Script").SetValue(true));
 
             Config.AddSubMenu(new Menu("Champions and Spells", "CAS"));
-            foreach (ChampionInfo Champ in ExistingChampions)
+            foreach (var champ in ExistingChampions)
             {
-                Config.SubMenu("CAS").AddSubMenu(new Menu(Champ.CharName + "'s Spells to Avoid", Champ.CharName));
+                Config.SubMenu("CAS").AddSubMenu(new Menu(champ.CharName + "'s Spells to Avoid", champ.CharName));
                 Config.SubMenu("CAS")
-                    .SubMenu(Champ.CharName)
-                    .AddItem(new MenuItem(Champ.Key, Champ.SpellName).SetValue(true));
+                    .SubMenu(champ.CharName)
+                    .AddItem(new MenuItem(champ.Key, champ.SpellName).SetValue(true));
             }
 
             Config.AddToMainMenu();
@@ -49,26 +49,30 @@ namespace Advanced_Turn_Around
         {
             if (!Config.Item("Enabled").GetValue<bool>() ||
                 (ObjectManager.Player.ChampionName == "Teemo" && !ObjectManager.Player.IsTargetable))
-                return;
-
-            if (unit != null && unit.Team != ObjectManager.Player.Team)
             {
-                foreach (ChampionInfo Champ in ExistingChampions)
-                {
-                    if (Config.SubMenu(Champ.CharName).Item(Champ.Key).GetValue<bool>())
-                    {
-                        if (args.SData.Name.Contains(Champ.Key) &&
-                            (ObjectManager.Player.Distance(unit) <= Champ.Range || args.Target == ObjectManager.Player))
-                            Packet.C2S.Move.Encoded(
-                                new Packet.C2S.Move.Struct(
-                                    ObjectManager.Player.Position.X +
-                                    ((unit.Position.X - ObjectManager.Player.Position.X)*(Champ.Variable)/
-                                     ObjectManager.Player.Distance(unit)),
-                                    ObjectManager.Player.Position.Y +
-                                    ((unit.Position.Y - ObjectManager.Player.Position.Y)*(Champ.Variable)/
-                                     ObjectManager.Player.Distance(unit)))).Send();
-                    }
-                }
+                return;
+            }
+
+            if (unit == null || unit.Team == ObjectManager.Player.Team)
+            {
+                return;
+            }
+
+            foreach (
+                var champ in
+                    ExistingChampions.Where(champ => Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
+                        .Where(champ => args.SData.Name.Contains(champ.Key) &&
+                                        (ObjectManager.Player.Distance(unit) <= champ.Range ||
+                                         args.Target == ObjectManager.Player)))
+            {
+                Packet.C2S.Move.Encoded(
+                    new Packet.C2S.Move.Struct(
+                        ObjectManager.Player.Position.X +
+                        ((unit.Position.X - ObjectManager.Player.Position.X)*(champ.Variable)/
+                         ObjectManager.Player.Distance(unit)),
+                        ObjectManager.Player.Position.Y +
+                        ((unit.Position.Y - ObjectManager.Player.Position.Y)*(champ.Variable)/
+                         ObjectManager.Player.Distance(unit)))).Send();
             }
         }
 
