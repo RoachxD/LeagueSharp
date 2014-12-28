@@ -175,7 +175,7 @@ namespace Kayle
             }
 
             if (Config.Item("UseWC").GetValue<bool>() && W.IsReady() && wTarget != null &&
-                Orbwalking.InAutoAttackRange(wTarget))
+                !Orbwalking.InAutoAttackRange(wTarget))
             {
                 W.Cast(Player, Config.Item("UsePackets").GetValue<bool>());
             }
@@ -222,7 +222,7 @@ namespace Kayle
             }
 
             if (Config.Item("UseWH").GetValue<bool>() && W.IsReady() && wTarget != null &&
-                Orbwalking.InAutoAttackRange(wTarget))
+                !Orbwalking.InAutoAttackRange(wTarget))
             {
                 W.Cast(Player, Config.Item("UsePackets").GetValue<bool>());
             }
@@ -288,7 +288,7 @@ namespace Kayle
                 foreach (var minion in allMinionsE
                     .Where(
                         minion =>
-                            Orbwalking.InAutoAttackRange(minion) &&
+                            !Orbwalking.InAutoAttackRange(minion) &&
                             !RighteousFuryActive))
                 {
                     E.Cast();
