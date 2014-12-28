@@ -47,7 +47,7 @@ namespace Kayle
             E = new Spell(SpellSlot.E, 625f);
             R = new Spell(SpellSlot.R, 900f);
 
-            IgniteSlot = _player.GetSpellSlot("SummonerDot");
+            IgniteSlot = _player.GetSpellSlot("summonerdot");
 
             Dfg = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline
                 ? new Items.Item(3188, 750)
@@ -116,10 +116,12 @@ namespace Kayle
             Config.SubMenu("Heal").AddSubMenu(new Menu("Allies", "Allies"));
             foreach (var ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly))
+            {
                 Config.SubMenu("Heal")
                     .SubMenu("Allies")
                     .AddItem(new MenuItem("Heal" + ally.ChampionName, ally.ChampionName)
                         .SetValue(ally.ChampionName == _player.ChampionName));
+            }
             Config.SubMenu("Heal")
                 .AddItem(new MenuItem("HealMinHP", "Min Percentage of HP").SetValue(new Slider(40, 1)));
 
@@ -200,7 +202,9 @@ namespace Kayle
                     minion =>
                         minion.Distance(eTarget) <= 150 && eTarget != null && RighteousFuryActive &&
                         !Config.Item("SupportMode").GetValue<bool>()))
+            {
                 Orbwalker.ForceTarget(minion);
+            }
         }
 
         private static void Harass()
@@ -301,11 +305,12 @@ namespace Kayle
 
             var mobs = MinionManager.GetMinions(_player.ServerPosition, W.Range, MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-
-            if (mobs.Count <= 0) return;
+            if (mobs.Count <= 0)
+            {
+                return;
+            }
 
             var mob = mobs[0];
-
             if (useQ && Q.IsReady())
             {
                 Q.Cast(mob, Config.Item("UsePackets").GetValue<bool>());

@@ -22,6 +22,7 @@ namespace Pantheon
         public static SpellSlot IgniteSlot;
         public static bool UsingE;
         public static Menu Config;
+        public static Obj_AI_Hero Player = ObjectManager.Player;
 
         private static void Main(string[] args)
         {
@@ -30,13 +31,13 @@ namespace Pantheon
 
         private static void OnLoad(EventArgs args)
         {
-            if (ObjectManager.Player.BaseSkinName != CharName) return;
+            if (Player.BaseSkinName != CharName) return;
 
             Q = new Spell(SpellSlot.Q, 600);
             W = new Spell(SpellSlot.W, 600);
             E = new Spell(SpellSlot.E, 700);
 
-            IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
+            IgniteSlot = Player.GetSpellSlot("summonerdot");
 
             Spells.Add(Q);
             Spells.Add(W);
@@ -164,8 +165,8 @@ namespace Pantheon
                 }
 
                 if (Config.Item("aQT").GetValue<bool>()
-                    ? !ObjectManager.Player.UnderTurret(true)
-                    : ObjectManager.Player.UnderTurret(true) && ObjectManager.Player.Distance(target) <= Q.Range &&
+                    ? !Player.UnderTurret(true)
+                    : Player.UnderTurret(true) && Player.Distance(target) <= Q.Range &&
                       Q.IsReady())
                 {
                     Q.CastOnUnit(target, Config.Item("usePackets").GetValue<bool>());
@@ -182,7 +183,7 @@ namespace Pantheon
 
             foreach (var spell in Spells.Where(spell => Config.Item(spell.Slot + "Draw").GetValue<Circle>().Active))
             {
-                Utility.DrawCircle(ObjectManager.Player.Position, spell.Range,
+                Utility.DrawCircle(Player.Position, spell.Range,
                     Config.Item(spell.Slot + "Draw").GetValue<Circle>().Color);
             }
 
@@ -200,7 +201,7 @@ namespace Pantheon
                 return;
             }
 
-            if (!(ObjectManager.Player.Distance(unit) <= W.Range) || !W.IsReady())
+            if (!(Player.Distance(unit) <= W.Range) || !W.IsReady())
             {
                 return;
             }
@@ -216,14 +217,12 @@ namespace Pantheon
             }
 
             UsingE = false;
-
             if (spell.SData.Name.ToLower() != "pantheone")
             {
                 return;
             }
 
             UsingE = true;
-
             Utility.DelayAction.Add(750, () => UsingE = false);
         }
 
@@ -275,17 +274,17 @@ namespace Pantheon
             }
 
             if (IgniteSlot == SpellSlot.Unknown ||
-                ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) != SpellState.Ready)
+                Player.Spellbook.CanUseSpell(IgniteSlot) != SpellState.Ready)
             {
                 return;
             }
 
-            if (!(ObjectManager.Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) >= target.Health))
+            if (!(Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) >= target.Health))
             {
                 return;
             }
 
-            ObjectManager.Player.Spellbook.CastSpell(IgniteSlot, target);
+            Player.Spellbook.CastSpell(IgniteSlot, target);
         }
 
         private static void Harass(Obj_AI_Base target)
@@ -300,8 +299,8 @@ namespace Pantheon
                 return;
             }
 
-            var mana = ObjectManager.Player.MaxMana*(Config.Item("harassMana").GetValue<Slider>().Value/100.0);
-            if (!(ObjectManager.Player.Mana > mana))
+            var mana = Player.MaxMana*(Config.Item("harassMana").GetValue<Slider>().Value/100.0);
+            if (!(Player.Mana > mana))
             {
                 return;
             }
@@ -336,9 +335,9 @@ namespace Pantheon
                 return;
             }
 
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range);
-            var mana = ObjectManager.Player.MaxMana*(Config.Item("farmMana").GetValue<Slider>().Value/100.0);
-            if (!(ObjectManager.Player.Mana > mana))
+            var minions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+            var mana = Player.MaxMana*(Config.Item("farmMana").GetValue<Slider>().Value/100.0);
+            if (!(Player.Mana > mana))
             {
                 return;
             }
@@ -348,11 +347,11 @@ namespace Pantheon
                 foreach (var minion in from minion in minions
                     let actualHp =
                         (HealthPrediction.GetHealthPrediction(minion,
-                            (int) (ObjectManager.Player.Distance(minion)*1000/1500)) <= minion.MaxHealth*0.15)
-                            ? ObjectManager.Player.GetSpellDamage(minion, SpellSlot.Q)*2
-                            : ObjectManager.Player.GetSpellDamage(minion, SpellSlot.Q)
+                            (int) (Player.Distance(minion)*1000/1500)) <= minion.MaxHealth*0.15)
+                            ? Player.GetSpellDamage(minion, SpellSlot.Q)*2
+                            : Player.GetSpellDamage(minion, SpellSlot.Q)
                     where minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion,
-                        (int) (ObjectManager.Player.Distance(minion)*1000/1500)) <= actualHp
+                        (int) (Player.Distance(minion)*1000/1500)) <= actualHp
                     select minion)
                 {
                     Q.CastOnUnit(minion, Config.Item("usePackets").GetValue<bool>());
@@ -369,8 +368,8 @@ namespace Pantheon
                     minions.Where(
                         minion =>
                             minion != null && minion.IsValidTarget(W.Range) &&
-                            HealthPrediction.GetHealthPrediction(minion, (int) (ObjectManager.Player.Distance(minion))) <
-                            ObjectManager.Player.GetSpellDamage(minion, SpellSlot.W)))
+                            HealthPrediction.GetHealthPrediction(minion, (int) (Player.Distance(minion))) <
+                            Player.GetSpellDamage(minion, SpellSlot.W)))
             {
                 W.CastOnUnit(minion, Config.Item("usePackets").GetValue<bool>());
                 return;
@@ -384,7 +383,7 @@ namespace Pantheon
                 return;
             }
 
-            var mobs = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All,
+            var mobs = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             if (mobs.Count <= 0)
             {
@@ -419,24 +418,24 @@ namespace Pantheon
             if (Q.IsReady())
             {
                 dmg += (target.Health <= target.MaxHealth*0.15)
-                    ? (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q)*2)
-                    : ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q);
+                    ? (Player.GetSpellDamage(target, SpellSlot.Q)*2)
+                    : Player.GetSpellDamage(target, SpellSlot.Q);
             }
 
             if (W.IsReady())
             {
-                dmg += ObjectManager.Player.GetSpellDamage(target, SpellSlot.W);
+                dmg += Player.GetSpellDamage(target, SpellSlot.W);
             }
 
             if (E.IsReady())
             {
-                dmg += ObjectManager.Player.GetSpellDamage(target, SpellSlot.E);
+                dmg += Player.GetSpellDamage(target, SpellSlot.E);
             }
 
             if (IgniteSlot != SpellSlot.Unknown &&
-                ObjectManager.Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
-                dmg += ObjectManager.Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+                dmg += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
             }
 
             return (float) dmg;
@@ -470,12 +469,12 @@ namespace Pantheon
 
         public static bool UsingEorR()
         {
-            if (ObjectManager.Player.HasBuff("pantheonesound"))
+            if (Player.HasBuff("pantheonesound"))
             {
                 UsingE = true;
             }
 
-            return UsingE || ObjectManager.Player.IsChannelingImportantSpell();
+            return UsingE || Player.IsChannelingImportantSpell();
         }
     }
 }

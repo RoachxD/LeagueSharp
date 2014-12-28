@@ -14,6 +14,7 @@ namespace Advanced_Turn_Around
     {
         private static readonly List<ChampionInfo> ExistingChampions = new List<ChampionInfo>();
         public static Menu Config;
+        public static Obj_AI_Hero Player = ObjectManager.Player;
 
         private static void Main(string[] args)
         {
@@ -48,12 +49,12 @@ namespace Advanced_Turn_Around
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (!Config.Item("Enabled").GetValue<bool>() ||
-                (ObjectManager.Player.ChampionName == "Teemo" && !ObjectManager.Player.IsTargetable))
+                (Player.ChampionName == "Teemo" && !Player.IsTargetable))
             {
                 return;
             }
 
-            if (unit == null || unit.Team == ObjectManager.Player.Team)
+            if (unit == null || unit.Team == Player.Team)
             {
                 return;
             }
@@ -62,17 +63,17 @@ namespace Advanced_Turn_Around
                 var champ in
                     ExistingChampions.Where(champ => Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
                         .Where(champ => args.SData.Name.Contains(champ.Key) &&
-                                        (ObjectManager.Player.Distance(unit) <= champ.Range ||
-                                         args.Target == ObjectManager.Player)))
+                                        (Player.Distance(unit) <= champ.Range ||
+                                         args.Target == Player)))
             {
                 Packet.C2S.Move.Encoded(
                     new Packet.C2S.Move.Struct(
-                        ObjectManager.Player.Position.X +
-                        ((unit.Position.X - ObjectManager.Player.Position.X)*(champ.Variable)/
-                         ObjectManager.Player.Distance(unit)),
-                        ObjectManager.Player.Position.Y +
-                        ((unit.Position.Y - ObjectManager.Player.Position.Y)*(champ.Variable)/
-                         ObjectManager.Player.Distance(unit)))).Send();
+                        Player.Position.X +
+                        ((unit.Position.X - Player.Position.X)*(champ.Variable)/
+                         Player.Distance(unit)),
+                        Player.Position.Y +
+                        ((unit.Position.Y - Player.Position.Y)*(champ.Variable)/
+                         Player.Distance(unit)))).Send();
             }
         }
 

@@ -40,7 +40,6 @@ namespace Item_Swapper
             }
 
             var key = (byte) args.WParam;
-
             if (_firstKey == 0x60)
             {
                 _firstKey = key;
