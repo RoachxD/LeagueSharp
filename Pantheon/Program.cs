@@ -20,6 +20,7 @@ namespace Pantheon
         public static Spell W;
         public static Spell E;
         public static SpellSlot IgniteSlot;
+        public static SpellSlot SmiteSlot;
         public static bool UsingE;
         public static Menu Config;
         public static Obj_AI_Hero Player = ObjectManager.Player;
@@ -37,7 +38,8 @@ namespace Pantheon
             W = new Spell(SpellSlot.W, 600);
             E = new Spell(SpellSlot.E, 700);
 
-            IgniteSlot = Player.GetSpellSlot("summonerdot");
+            SetIgniteSlot();
+            SetSmiteSlot();
 
             Spells.Add(Q);
             Spells.Add(W);
@@ -49,7 +51,16 @@ namespace Pantheon
             Config.SubMenu("combo")
                 .AddItem(new MenuItem("comboKey", "Full Combo Key").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("combo").AddItem(new MenuItem("comboItems", "Use Items with Burst").SetValue(true));
-            Config.SubMenu("combo").AddItem(new MenuItem("autoIgnite", "Use Ignite with Burst").SetValue(true));
+            if (SmiteSlot != SpellSlot.Unknown)
+            {
+                Config.SubMenu("combo")
+                    .AddItem(new MenuItem("autoSmite", "Use Smite on Target if QWE Available").SetValue(true));
+            }
+
+            if (IgniteSlot != SpellSlot.Unknown)
+            {
+                Config.SubMenu("combo").AddItem(new MenuItem("autoIgnite", "Use Ignite with Burst").SetValue(true));
+            }
 
             Config.AddSubMenu(new Menu("Harass Settings", "harass"));
             Config.SubMenu("harass")
@@ -268,6 +279,17 @@ namespace Pantheon
                 UseItems(target);
             }
 
+            if (Config.Item("autoSmite").GetValue<bool>())
+            {
+                if (SmiteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(SmiteSlot) == SpellState.Ready)
+                {
+                    if (Q.IsReady() && W.IsReady() && E.IsReady())
+                    {
+                        Player.Spellbook.CastSpell(SmiteSlot, target);
+                    }
+                }
+            }
+
             if (!Config.Item("autoIgnite").GetValue<bool>())
             {
                 return;
@@ -465,6 +487,33 @@ namespace Pantheon
             {
                 Items.UseItem(itemId);
             }
+        }
+
+        public static string SmiteType()
+        {
+            int[] redSmite = {3715, 3718, 3717, 3716, 3714};
+            int[] blueSmite = {3706, 3710, 3709, 3708, 3707};
+
+            return blueSmite.Any(Items.HasItem)
+                ? "s5_summonersmiteplayerganker"
+                : (redSmite.Any(Items.HasItem) ? "s5_summonersmiteduel" : "summonersmite");
+        }
+
+        public static void SetSmiteSlot()
+        {
+            foreach (
+                var spell in
+                    ObjectManager.Player.Spellbook.Spells.Where(
+                        spell => String.Equals(spell.Name, SmiteType(), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                SmiteSlot = spell.Slot;
+                break;
+            }
+        }
+
+        public static void SetIgniteSlot()
+        {
+            IgniteSlot = Player.GetSpellSlot("summonerdot");
         }
 
         public static bool UsingEorR()
