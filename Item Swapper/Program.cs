@@ -50,8 +50,9 @@ namespace Item_Swapper
                 return;
             }
 
-            Packet.C2S.SwapItem.Encoded(new Packet.C2S.SwapItem.Struct((byte) Array.IndexOf(Keys, _firstKey),
-                (byte) Array.IndexOf(Keys, key), ObjectManager.Player.NetworkId)).Send();
+            ObjectManager.Player.SwapItem(Array.IndexOf(Keys, _firstKey), Array.IndexOf(Keys, key));
+            /*Packet.C2S.SwapItem.Encoded(new Packet.C2S.SwapItem.Struct((byte) Array.IndexOf(Keys, _firstKey),
+                (byte) Array.IndexOf(Keys, key)));*/
         }
 
         private static void Game_OnGameProcessPacket(GamePacketEventArgs args)
