@@ -494,9 +494,9 @@ namespace Pantheon
             int[] redSmite = {3715, 3718, 3717, 3716, 3714};
             int[] blueSmite = {3706, 3710, 3709, 3708, 3707};
 
-            return blueSmite.Any(Items.HasItem)
+            return blueSmite.Any(itemId => Items.HasItem(itemId))
                 ? "s5_summonersmiteplayerganker"
-                : (redSmite.Any(Items.HasItem) ? "s5_summonersmiteduel" : "summonersmite");
+                : (redSmite.Any(itemId => Items.HasItem(itemId)) ? "s5_summonersmiteduel" : "summonersmite");
         }
 
         public static void SetSmiteSlot()
