@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 
 #endregion
 
@@ -60,20 +61,21 @@ namespace Advanced_Turn_Around
             }
 
             foreach (
-                var champ in
+                var vector in
                     ExistingChampions.Where(champ => Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
-                        .Where(champ => args.SData.Name.Contains(champ.Key) &&
-                                        (Player.Distance(unit) <= champ.Range ||
-                                         args.Target == Player)))
+                        .Where(
+                            champ =>
+                                args.SData.Name.Contains(champ.Key) &&
+                                (Player.Distance(unit) <= champ.Range || args.Target == Player))
+                        .Select(
+                            champ =>
+                                new Vector3(
+                                    Player.Position.X +
+                                    ((unit.Position.X - Player.Position.X)*(champ.Variable)/Player.Distance(unit)),
+                                    Player.Position.Y +
+                                    ((unit.Position.Y - Player.Position.Y)*(champ.Variable)/Player.Distance(unit)), 0)))
             {
-                Packet.C2S.Move.Encoded(
-                    new Packet.C2S.Move.Struct(
-                        Player.Position.X +
-                        ((unit.Position.X - Player.Position.X)*(champ.Variable)/
-                         Player.Distance(unit)),
-                        Player.Position.Y +
-                        ((unit.Position.Y - Player.Position.Y)*(champ.Variable)/
-                         Player.Distance(unit)))).Send();
+                Player.IssueOrder(GameObjectOrder.MoveTo, vector);
             }
         }
 
