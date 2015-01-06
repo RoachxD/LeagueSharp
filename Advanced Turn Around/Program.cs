@@ -19,10 +19,10 @@ namespace Advanced_Turn_Around
 
         private static void Main(string[] args)
         {
-            Game.OnGameStart += Game_OnGameStart;
+            CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        private static void Game_OnGameStart(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
             AddChampions();
 
