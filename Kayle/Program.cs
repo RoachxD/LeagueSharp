@@ -47,7 +47,7 @@ namespace Kayle
 
             IgniteSlot = Player.GetSpellSlot("summonerdot");
 
-            Dfg = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline
+            Dfg = Utility.Map.GetMap().Type == Utility.Map.MapType.TwistedTreeline
                 ? new Items.Item(3188, 750)
                 : new Items.Item(3128, 750);
 
@@ -323,11 +323,11 @@ namespace Kayle
         private static void Ultimate()
         {
             foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
-                .Where(ally => ally.IsAlly && !ally.IsDead && Utility.CountEnemysInRange(1000) > 0)
+                .Where(ally => ally.IsAlly && !ally.IsDead && Player.CountEnemysInRange(1000) > 0)
                 let menuItem = Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
                 where
                     menuItem && Config.Item("UltMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
-                    R.IsReady()
+                    R.IsReady() && !Player.IsRecalling()
                 select ally)
             {
                 R.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
@@ -336,17 +336,12 @@ namespace Kayle
 
         private static void Heal()
         {
-            if (Player.HasBuff("Recall"))
-            {
-                return;
-            }
-
             foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly && !ally.IsDead)
                 let menuItem = Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
                 where
                     menuItem && Config.Item("HealMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
-                    W.IsReady()
+                    W.IsReady() && !Player.IsRecalling()
                 select ally)
             {
                 W.Cast(ally, Config.Item("UsePackets").GetValue<bool>());
@@ -437,7 +432,7 @@ namespace Kayle
                 var menuItem = Config.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                 {
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
                 }
             }
 
