@@ -28,7 +28,7 @@ namespace Advanced_Turn_Around
 
             Config = new Menu("Advanced Turn Around", "ATA", true);
 
-            Config.AddItem(new MenuItem("Enable", "Enable the Script").SetValue(true));
+            Config.AddItem(new MenuItem("Enabled", "Enable the Script").SetValue(true));
 
             Config.AddSubMenu(new Menu("Champions and Spells", "CAS"));
             foreach (var champ in ExistingChampions)
@@ -50,30 +50,28 @@ namespace Advanced_Turn_Around
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (!Config.Item("Enabled").GetValue<bool>() ||
-                (Player.ChampionName == "Teemo" && !Player.IsTargetable))
-            {
-                return;
-            }
-
-            if (unit == null || unit.Team == Player.Team)
+                (Player.ChampionName == "Teemo" && !Player.IsTargetable) ||
+                (unit == null || unit.Team == Player.Team))
             {
                 return;
             }
 
             foreach (
                 var vector in
-                    ExistingChampions.Where(champ => Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
+                    ExistingChampions.Where(champ => (Config.SubMenu(champ.CharName) != null) &&
+                                            (Config.SubMenu(champ.CharName).Item(champ.Key) != null) &&
+                                            (Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>()))
                         .Where(
                             champ =>
                                 args.SData.Name.Contains(champ.Key) &&
-                                (Player.Distance(unit) <= champ.Range || args.Target == Player))
+                                (Player.Distance(unit.Position) <= champ.Range || args.Target == Player))
                         .Select(
                             champ =>
                                 new Vector3(
                                     Player.Position.X +
-                                    ((unit.Position.X - Player.Position.X)*(champ.Variable)/Player.Distance(unit)),
+                                    ((unit.Position.X - Player.Position.X) * (MoveTo(champ.Movement)) / Player.Distance(unit.Position)),
                                     Player.Position.Y +
-                                    ((unit.Position.Y - Player.Position.Y)*(champ.Variable)/Player.Distance(unit)), 0)))
+                                    ((unit.Position.Y - Player.Position.Y) * (MoveTo(champ.Movement)) / Player.Distance(unit.Position)), 0)))
             {
                 Player.IssueOrder(GameObjectOrder.MoveTo, vector);
             }
@@ -88,7 +86,7 @@ namespace Advanced_Turn_Around
                     Key = "CassiopeiaPetrifyingGaze",
                     Range = 750,
                     SpellName = "Petrifying Gaze (R)",
-                    Variable = -100
+                    Movement = MovementDirection.Backward
                 });
 
             ExistingChampions.Add(
@@ -98,7 +96,7 @@ namespace Advanced_Turn_Around
                     Key = "TwoShivPoison",
                     Range = 625,
                     SpellName = "Two-Shiv Poison (E)",
-                    Variable = 100
+                    Movement = MovementDirection.Forward
                 });
 
             ExistingChampions.Add(
@@ -108,8 +106,24 @@ namespace Advanced_Turn_Around
                     Key = "MockingShout",
                     Range = 850,
                     SpellName = "Mocking Shout (W)",
-                    Variable = 100
+                    Movement = MovementDirection.Forward
                 });
+        }
+
+        public enum MovementDirection
+        {
+            Forward = 1,
+            Backward = 2
+        }
+
+        private static int MoveTo(MovementDirection Direction)
+        {
+            if (Direction == MovementDirection.Forward)
+                return 100;
+            else if (Direction == MovementDirection.Backward)
+                return -100;
+            else
+                throw new ArgumentOutOfRangeException("Direction");
         }
 
         internal class ChampionInfo
@@ -118,7 +132,7 @@ namespace Advanced_Turn_Around
             public string Key { get; set; }
             public float Range { get; set; }
             public string SpellName { get; set; }
-            public int Variable { get; set; }
+            public MovementDirection Movement { get; set; }
         }
     }
 }
