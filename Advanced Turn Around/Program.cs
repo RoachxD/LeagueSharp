@@ -47,31 +47,31 @@ namespace Advanced_Turn_Around
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
         }
 
-        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (!Config.Item("Enabled").GetValue<bool>() ||
                 (Player.ChampionName == "Teemo" && !Player.IsTargetable) ||
-                (unit == null || unit.Team == Player.Team))
+                (sender == null || sender.Team == Player.Team))
             {
                 return;
             }
 
             foreach (
                 var vector in
-                    ExistingChampions.Where(champ => (Config.SubMenu(champ.CharName) != null) &&
-                                            (Config.SubMenu(champ.CharName).Item(champ.Key) != null) &&
-                                            (Config.SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>()))
+                    ExistingChampions.Where(champ => (Config.SubMenu("CAS").SubMenu(champ.CharName) != null) &&
+                                            (Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key) != null) &&
+                                            (Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>()))
                         .Where(
                             champ =>
                                 args.SData.Name.Contains(champ.Key) &&
-                                (Player.Distance(unit.Position) <= champ.Range || args.Target == Player))
+                                (Player.Distance(sender.Position) <= champ.Range || args.Target == Player))
                         .Select(
                             champ =>
                                 new Vector3(
                                     Player.Position.X +
-                                    ((unit.Position.X - Player.Position.X) * (MoveTo(champ.Movement)) / Player.Distance(unit.Position)),
+                                    ((sender.Position.X - Player.Position.X) * (MoveTo(champ.Movement)) / Player.Distance(sender.Position)),
                                     Player.Position.Y +
-                                    ((unit.Position.Y - Player.Position.Y) * (MoveTo(champ.Movement)) / Player.Distance(unit.Position)), 0)))
+                                    ((sender.Position.Y - Player.Position.Y) * (MoveTo(champ.Movement)) / Player.Distance(sender.Position)), 0)))
             {
                 Player.IssueOrder(GameObjectOrder.MoveTo, vector);
             }
