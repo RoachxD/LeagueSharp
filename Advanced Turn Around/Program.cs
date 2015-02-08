@@ -1,8 +1,7 @@
 ﻿#region
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -13,33 +12,34 @@ namespace Advanced_Turn_Around
 {
     internal class Program
     {
-        private static readonly List<ChampionInfo> ExistingChampions = new List<ChampionInfo>();
-        public static Menu Config;
-        public static Obj_AI_Hero Player = ObjectManager.Player;
-
         private static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+            CustomEvents.Game.OnGameLoad += delegate
+            {
+                var onGameLoadThread = new Thread(Game_OnGameLoad);
+                onGameLoadThread.Start();
+            };
         }
 
-        private static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad()
         {
-            AddChampions();
+            Internal.AddChampions();
 
-            Config = new Menu("Advanced Turn Around", "ATA", true);
+            Variable.Config = new Menu("Advanced Turn Around", "ATA", true);
 
-            Config.AddItem(new MenuItem("Enabled", "Enable the Script").SetValue(true));
+            Variable.Config.AddItem(new MenuItem("Enabled", "Enable the Script").SetValue(true));
 
-            Config.AddSubMenu(new Menu("Champions and Spells", "CAS"));
-            foreach (var champ in ExistingChampions)
+            Variable.Config.AddSubMenu(new Menu("Champions and Spells", "CAS"));
+            foreach (var champ in Variable.ExistingChampions)
             {
-                Config.SubMenu("CAS").AddSubMenu(new Menu(champ.CharName + "'s Spells to Avoid", champ.CharName));
-                Config.SubMenu("CAS")
+                Variable.Config.SubMenu("CAS")
+                    .AddSubMenu(new Menu(champ.CharName + "'s Spells to Avoid", champ.CharName));
+                Variable.Config.SubMenu("CAS")
                     .SubMenu(champ.CharName)
                     .AddItem(new MenuItem(champ.Key, champ.SpellName).SetValue(true));
             }
 
-            Config.AddToMainMenu();
+            Variable.Config.AddToMainMenu();
 
             Game.PrintChat(
                 "<font color=\"#00BFFF\">Advanced Turn Around# -</font> <font color=\"#FFFFFF\">Loaded</font>");
@@ -49,90 +49,32 @@ namespace Advanced_Turn_Around
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!Config.Item("Enabled").GetValue<bool>() ||
-                (Player.ChampionName == "Teemo" && !Player.IsTargetable) ||
-                (sender == null || sender.Team == Player.Team))
+            if (!Variable.Config.Item("Enabled").GetValue<bool>() ||
+                (Variable.Player.ChampionName == "Teemo" && !Variable.Player.IsTargetable) ||
+                (sender == null || sender.Team == Variable.Player.Team))
             {
                 return;
             }
 
-            foreach (
-                var vector in
-                    ExistingChampions.Where(champ => (Config.SubMenu("CAS").SubMenu(champ.CharName) != null) &&
-                                            (Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key) != null) &&
-                                            (Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>()))
-                        .Where(
-                            champ =>
-                                args.SData.Name.Contains(champ.Key) &&
-                                (Player.Distance(sender.Position) <= champ.Range || args.Target == Player))
-                        .Select(
-                            champ =>
-                                new Vector3(
-                                    Player.Position.X +
-                                    ((sender.Position.X - Player.Position.X) * (MoveTo(champ.Movement)) / Player.Distance(sender.Position)),
-                                    Player.Position.Y +
-                                    ((sender.Position.Y - Player.Position.Y) * (MoveTo(champ.Movement)) / Player.Distance(sender.Position)), 0)))
+            foreach (var vector in from champ in Variable.ExistingChampions
+                where
+                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName) != null) &&
+                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key) != null) &&
+                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
+                where
+                    args.SData.Name.Contains(champ.Key) &&
+                    (Variable.Player.Distance(sender.Position) <= champ.Range || args.Target == Variable.Player)
+                select
+                    new Vector3(
+                        Variable.Player.Position.X +
+                        ((sender.Position.X - Variable.Player.Position.X)*(Internal.MoveTo(champ.Movement))/
+                         Variable.Player.Distance(sender.Position)),
+                        Variable.Player.Position.Y +
+                        ((sender.Position.Y - Variable.Player.Position.Y)*(Internal.MoveTo(champ.Movement))/
+                         Variable.Player.Distance(sender.Position)), 0))
             {
-                Player.IssueOrder(GameObjectOrder.MoveTo, vector);
+                Variable.Player.IssueOrder(GameObjectOrder.MoveTo, vector);
             }
-        }
-
-        private static void AddChampions()
-        {
-            ExistingChampions.Add(
-                new ChampionInfo
-                {
-                    CharName = "Cassiopeia",
-                    Key = "CassiopeiaPetrifyingGaze",
-                    Range = 750,
-                    SpellName = "Petrifying Gaze (R)",
-                    Movement = MovementDirection.Backward
-                });
-
-            ExistingChampions.Add(
-                new ChampionInfo
-                {
-                    CharName = "Shaco",
-                    Key = "TwoShivPoison",
-                    Range = 625,
-                    SpellName = "Two-Shiv Poison (E)",
-                    Movement = MovementDirection.Forward
-                });
-
-            ExistingChampions.Add(
-                new ChampionInfo
-                {
-                    CharName = "Tryndamere",
-                    Key = "MockingShout",
-                    Range = 850,
-                    SpellName = "Mocking Shout (W)",
-                    Movement = MovementDirection.Forward
-                });
-        }
-
-        public enum MovementDirection
-        {
-            Forward = 1,
-            Backward = 2
-        }
-
-        private static int MoveTo(MovementDirection Direction)
-        {
-            if (Direction == MovementDirection.Forward)
-                return 100;
-            else if (Direction == MovementDirection.Backward)
-                return -100;
-            else
-                throw new ArgumentOutOfRangeException("Direction");
-        }
-
-        internal class ChampionInfo
-        {
-            public string CharName { get; set; }
-            public string Key { get; set; }
-            public float Range { get; set; }
-            public string SpellName { get; set; }
-            public MovementDirection Movement { get; set; }
         }
     }
 }
