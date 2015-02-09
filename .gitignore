@@ -1,0 +1,6 @@
+*.exe
+bin/
+obj/
+*.v12.suo
+*.v11.suo
+*.sln
