@@ -8,7 +8,7 @@ using LeagueSharp.Common;
 
 namespace Kayle
 {
-    internal class Function
+    internal class Internal
     {
         public static void Combo()
         {

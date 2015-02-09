@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -17,7 +18,11 @@ namespace Kayle
         {
             try
             {
-                CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+                CustomEvents.Game.OnGameLoad += delegate
+                {
+                    var onGameLoad = new Thread(Game_OnGameLoad);
+                    onGameLoad.Start();
+                };
             }
             catch (Exception ex)
             {
@@ -25,7 +30,7 @@ namespace Kayle
             }
         }
 
-        private static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad()
         {
             if (Variable.Player.ChampionName != Variable.ChampionName) return;
 
@@ -122,7 +127,7 @@ namespace Kayle
             Variable.Config.SubMenu("Misc").AddItem(new MenuItem("SupportMode", "Support Mode").SetValue(false));
 
             var comboDmg = new MenuItem("ComboDamage", "Draw damage after combo").SetValue(true);
-            Utility.HpBarDamageIndicator.DamageToUnit = Function.ComboDamage;
+            Utility.HpBarDamageIndicator.DamageToUnit = Internal.ComboDamage;
             Utility.HpBarDamageIndicator.Enabled = comboDmg.GetValue<bool>();
             comboDmg.ValueChanged +=
                 delegate(object sender, OnValueChangeEventArgs eventArgs)
@@ -146,7 +151,6 @@ namespace Kayle
             Game.PrintChat("<font color=\"#00BFFF\">Kayle# -</font> <font color=\"#FFFFFF\">Loaded</font>");
 
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
@@ -157,61 +161,50 @@ namespace Kayle
                 return;
             }
 
+            if ((((Obj_AI_Base) Variable.Orbwalker.GetTarget()).IsMinion))
+            {
+                Variable.Orbwalker.SetAttack(!Variable.Config.Item("SupportMode").GetValue<bool>());
+            }
+
             if (Variable.Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
-                Function.Combo();
+                Internal.Combo();
             }
             else
             {
                 if (Variable.Config.Item("HarassActive").GetValue<KeyBind>().Active ||
                     Variable.Config.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
-                    Function.Harass();
+                    Internal.Harass();
                 }
 
                 var laneClear = Variable.Config.Item("LaneClearActive").GetValue<KeyBind>().Active;
                 if ((laneClear || Variable.Config.Item("FreezeActive").GetValue<KeyBind>().Active) &&
                     !Variable.Config.Item("SupportMode").GetValue<bool>())
                 {
-                    Function.Farm(laneClear);
+                    Internal.Farm(laneClear);
                 }
 
                 if (Variable.Config.Item("JungleFarmActive").GetValue<KeyBind>().Active)
                 {
-                    Function.JungleFarm();
+                    Internal.JungleFarm();
                 }
             }
 
-            Function.Ultimate();
-            Function.Heal();
-        }
-
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] != Packet.C2S.Move.Header)
-            {
-                return;
-            }
-
-            var decodedPacket = Packet.C2S.Move.Decoded(args.PacketData);
-            if (decodedPacket.MoveType == 3 &&
-                (((Obj_AI_Base) Variable.Orbwalker.GetTarget()).IsMinion &&
-                 Variable.Config.Item("SupportMode").GetValue<bool>()))
-            {
-                args.Process = false;
-            }
+            Internal.Ultimate();
+            Internal.Heal();
         }
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            Function.DrawCircles();
+            Internal.DrawCircles();
 
             var target = TargetSelector.GetTarget(Variable.W.Range, TargetSelector.DamageType.Magical);
             var eDamage = 20 + ((Variable.E.Level - 1)*10) + (Variable.Player.BaseAbilityDamage*0.25);
             if (Variable.Config.Item("ComboDamage").GetValue<bool>())
             {
                 Drawing.DrawText(target.Position.X, target.Position.Y, Color.White,
-                    ((target.Health - Function.ComboDamage(target))/
+                    ((target.Health - Internal.ComboDamage(target))/
                      (Variable.RighteousFuryActive ? (eDamage) : (Variable.Player.GetAutoAttackDamage(target))))
                         .ToString(
                             CultureInfo.InvariantCulture));
