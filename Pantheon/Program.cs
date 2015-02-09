@@ -3,6 +3,7 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -14,10 +15,14 @@ namespace Pantheon
     {
         private static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += OnLoad;
+            CustomEvents.Game.OnGameLoad += delegate
+            {
+                var onGameLoad = new Thread(Game_OnGameLoad);
+                onGameLoad.Start();
+            };
         }
 
-        private static void OnLoad(EventArgs args)
+        private static void Game_OnGameLoad()
         {
             if (Variable.Player.BaseSkinName != Variable.CharName)
             {
@@ -28,8 +33,8 @@ namespace Pantheon
             Variable.W = new Spell(SpellSlot.W, 600);
             Variable.E = new Spell(SpellSlot.E, 700);
 
-            Function.SetIgniteSlot();
-            Function.SetSmiteSlot();
+            Internal.SetIgniteSlot();
+            Internal.SetSmiteSlot();
 
             Variable.Spells.Add(Variable.Q);
             Variable.Spells.Add(Variable.W);
@@ -124,7 +129,7 @@ namespace Pantheon
 
             Variable.Config.AddToMainMenu();
 
-            Utility.HpBarDamageIndicator.DamageToUnit = Function.ComboDamage;
+            Utility.HpBarDamageIndicator.DamageToUnit = Internal.ComboDamage;
             Utility.HpBarDamageIndicator.Enabled = true;
 
             Drawing.OnDraw += Drawing_OnDraw;
@@ -145,28 +150,28 @@ namespace Pantheon
             var farmKey = Variable.Config.Item("farmKey").GetValue<KeyBind>().Active;
             var jungleClearKey = Variable.Config.Item("jungleKey").GetValue<KeyBind>().Active;
 
-            Variable.Orbwalker.SetAttack(!Function.UsingEorR());
-            Variable.Orbwalker.SetMovement(!Function.UsingEorR());
+            Variable.Orbwalker.SetAttack(!Internal.UsingEorR());
+            Variable.Orbwalker.SetMovement(!Internal.UsingEorR());
 
             if (comboKey && target != null)
             {
-                Function.Combo(target);
+                Internal.Combo(target);
             }
             else
             {
                 if (harassKey && target != null)
                 {
-                    Function.Harass(target);
+                    Internal.Harass(target);
                 }
 
                 if (farmKey)
                 {
-                    Function.Farm();
+                    Internal.Farm();
                 }
 
                 if (jungleClearKey)
                 {
-                    Function.JungleClear();
+                    Internal.JungleClear();
                 }
 
                 if (!Variable.Config.Item("autoQ").GetValue<KeyBind>().Active || target == null)

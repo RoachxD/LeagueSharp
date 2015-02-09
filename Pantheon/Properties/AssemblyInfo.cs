@@ -9,12 +9,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Pantheon - The Artisan of War")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Roach's Pantheon#")]
+[assembly: AssemblyDescription("Plays Pantheon.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Pantheon - The Artisan of War")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyProduct("Roach's Pantheon#")]
+[assembly: AssemblyCopyright("Copyright © Roach_ 2014 - 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("4.1.4.1")]
-[assembly: AssemblyFileVersion("4.1.4.1")]
+[assembly: AssemblyVersion("4.1.4.2")]
+[assembly: AssemblyFileVersion("4.1.4.2")]

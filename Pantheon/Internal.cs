@@ -9,7 +9,7 @@ using LeagueSharp.Common;
 
 namespace Pantheon
 {
-    internal class Function
+    internal class Internal
     {
         public static void Combo(Obj_AI_Base target)
         {
@@ -131,15 +131,7 @@ namespace Pantheon
 
             if (Variable.Config.Item("qFarm").GetValue<bool>() && Variable.Q.IsReady())
             {
-                foreach (var minion in from minion in minions
-                    let actualHp =
-                        (HealthPrediction.GetHealthPrediction(minion,
-                            (int) (Variable.Player.Distance(minion)*1000/1500)) <= minion.MaxHealth*0.15)
-                            ? Variable.Player.GetSpellDamage(minion, SpellSlot.Q)*2
-                            : Variable.Player.GetSpellDamage(minion, SpellSlot.Q)
-                    where minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion,
-                        (int) (Variable.Player.Distance(minion)*1000/1500)) <= actualHp
-                    select minion)
+                foreach (var minion in minions.Where(unit => unit.Health <= Variable.Q.GetDamage(unit)))
                 {
                     Variable.Q.CastOnUnit(minion, Variable.Config.Item("usePackets").GetValue<bool>());
                     return;
@@ -150,13 +142,7 @@ namespace Pantheon
                 return;
             }
 
-            foreach (
-                var minion in
-                    minions.Where(
-                        minion =>
-                            minion != null && minion.IsValidTarget(Variable.W.Range) &&
-                            HealthPrediction.GetHealthPrediction(minion, (int) (Variable.Player.Distance(minion))) <
-                            Variable.Player.GetSpellDamage(minion, SpellSlot.W)))
+            foreach (var minion in minions.Where(unit => unit.Health <= Variable.W.GetDamage(unit)))
             {
                 Variable.W.CastOnUnit(minion, Variable.Config.Item("usePackets").GetValue<bool>());
                 return;
@@ -283,7 +269,7 @@ namespace Pantheon
 
         public static bool UsingEorR()
         {
-            if (Variable.Player.HasBuff("pantheonesound"))
+            if (Variable.Player.HasBuff("Heartseeker Strike"))
             {
                 Variable.UsingE = true;
             }
