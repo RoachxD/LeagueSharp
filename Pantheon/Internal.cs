@@ -37,7 +37,7 @@ namespace Pantheon
                     Variable.W.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
                 }
 
-                if (Variable.E.IsReady())
+                if (Variable.E.IsReady() && !Variable.W.IsReady())
                 {
                     Variable.E.Cast(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
                 }
