@@ -18,7 +18,6 @@ namespace Pantheon
         public static Spell E;
         public static SpellSlot IgniteSlot;
         public static SpellSlot SmiteSlot;
-        public static bool UsingE;
         public static Menu Config;
         public static Obj_AI_Hero Player = ObjectManager.Player;
     }

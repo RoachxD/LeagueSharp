@@ -65,9 +65,6 @@
     <Reference Include="LeagueSharp">
       <HintPath>D:\LeagueSharp\System\LeagueSharp.dll</HintPath>
     </Reference>
-    <Reference Include="LeagueSharp.AppDomainManager">
-      <HintPath>D:\LeagueSharp\System\LeagueSharp.AppDomainManager.dll</HintPath>
-    </Reference>
     <Reference Include="LeagueSharp.Common">
       <HintPath>D:\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>

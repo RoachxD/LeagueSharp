@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Roach's Pantheon#")]
 [assembly: AssemblyDescription("Plays Pantheon.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("LeagueSharp")]
 [assembly: AssemblyProduct("Roach's Pantheon#")]
 [assembly: AssemblyCopyright("Copyright © Roach_ 2014 - 2015")]
 [assembly: AssemblyTrademark("")]
@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("4.1.4.2")]
-[assembly: AssemblyFileVersion("4.1.4.2")]
+[assembly: AssemblyVersion("4.1.5.0")]
+[assembly: AssemblyFileVersion("4.1.5.0")]
