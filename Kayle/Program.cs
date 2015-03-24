@@ -32,7 +32,10 @@ namespace Kayle
 
         private static void Game_OnGameLoad()
         {
-            if (Variable.Player.ChampionName != Variable.ChampionName) return;
+            if (Variable.Player.ChampionName != Variable.ChampionName)
+            {
+                return;
+            }
 
             Variable.Q = new Spell(SpellSlot.Q, 650f);
             Variable.W = new Spell(SpellSlot.W, 900f);
@@ -173,7 +176,7 @@ namespace Kayle
             else
             {
                 if (Variable.Config.SubMenu("Harass").Item("HarassActive").GetValue<KeyBind>().Active ||
-                    Variable.Config.SubMenu("Harass").Item("HarassActiveT").GetValue<KeyBind>().Active)
+                    Variable.Config.SubMenu("Harass").Item("HarassActiveT").GetValue<bool>())
                 {
                     Internal.Harass();
                 }

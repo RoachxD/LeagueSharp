@@ -36,8 +36,7 @@ namespace Kayle
             }
 
             if (Variable.Config.SubMenu("Combo").Item("UseEC").GetValue<bool>() && Variable.E.IsReady() &&
-                eTarget != null &&
-                Variable.Player.Distance(eTarget) <= Variable.E.Range)
+                eTarget != null)
             {
                 Variable.E.Cast();
             }
@@ -92,8 +91,7 @@ namespace Kayle
             }
 
             if (Variable.Config.SubMenu("Harass").Item("UseEH").GetValue<bool>() && Variable.E.IsReady() &&
-                eTarget != null &&
-                Variable.Player.Distance(eTarget) <= Variable.E.Range)
+                eTarget != null)
             {
                 Variable.E.Cast();
             }
@@ -264,7 +262,7 @@ namespace Kayle
                 var menuItem = Variable.Config.SubMenu("Drawings").Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                 {
-                    Utility.DrawCircle(Variable.Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Variable.Player.Position, spell.Range, menuItem.Color);
                 }
             }
         }
