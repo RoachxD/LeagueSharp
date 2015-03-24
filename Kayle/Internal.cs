@@ -22,24 +22,27 @@ namespace Kayle
                 return;
             }
 
-            if (Variable.Config.Item("UseQC").GetValue<bool>() && Variable.Q.IsReady() && qTarget != null)
+            if (Variable.Config.SubMenu("Combo").Item("UseQC").GetValue<bool>() && Variable.Q.IsReady() &&
+                qTarget != null)
             {
-                Variable.Q.Cast(qTarget, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.Q.Cast(qTarget, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("UseWC").GetValue<bool>() && Variable.W.IsReady() && wTarget != null &&
+            if (Variable.Config.SubMenu("Combo").Item("UseWC").GetValue<bool>() && Variable.W.IsReady() &&
+                wTarget != null &&
                 !Orbwalking.InAutoAttackRange(wTarget))
             {
-                Variable.W.Cast(Variable.Player, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.W.Cast(Variable.Player, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("UseEC").GetValue<bool>() && Variable.E.IsReady() && eTarget != null &&
+            if (Variable.Config.SubMenu("Combo").Item("UseEC").GetValue<bool>() && Variable.E.IsReady() &&
+                eTarget != null &&
                 Variable.Player.Distance(eTarget) <= Variable.E.Range)
             {
                 Variable.E.Cast();
             }
 
-            if (iTarget != null && Variable.Config.Item("UseIgniteC").GetValue<bool>() &&
+            if (iTarget != null && Variable.Config.SubMenu("Combo").Item("UseIgniteC").GetValue<bool>() &&
                 Variable.IgniteSlot != SpellSlot.Unknown &&
                 Variable.Player.Spellbook.CanUseSpell(Variable.IgniteSlot) == SpellState.Ready)
             {
@@ -49,7 +52,8 @@ namespace Kayle
                 }
             }
 
-            if (!Variable.Config.Item("CMinions").GetValue<bool>() || Variable.Config.Item("SupportMode").GetValue<bool>())
+            if (!Variable.Config.SubMenu("Combo").Item("CMinions").GetValue<bool>() ||
+                Variable.Config.SubMenu("Misc").Item("SupportMode").GetValue<bool>())
             {
                 return;
             }
@@ -74,24 +78,28 @@ namespace Kayle
                 return;
             }
 
-            if (Variable.Config.Item("UseQH").GetValue<bool>() && Variable.Q.IsReady() && qTarget != null)
+            if (Variable.Config.SubMenu("Harass").Item("UseQH").GetValue<bool>() && Variable.Q.IsReady() &&
+                qTarget != null)
             {
-                Variable.Q.Cast(qTarget, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.Q.Cast(qTarget, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("UseWH").GetValue<bool>() && Variable.W.IsReady() && wTarget != null &&
+            if (Variable.Config.SubMenu("Harass").Item("UseWH").GetValue<bool>() && Variable.W.IsReady() &&
+                wTarget != null &&
                 !Orbwalking.InAutoAttackRange(wTarget))
             {
-                Variable.W.Cast(Variable.Player, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.W.Cast(Variable.Player, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("UseEH").GetValue<bool>() && Variable.E.IsReady() && eTarget != null &&
+            if (Variable.Config.SubMenu("Harass").Item("UseEH").GetValue<bool>() && Variable.E.IsReady() &&
+                eTarget != null &&
                 Variable.Player.Distance(eTarget) <= Variable.E.Range)
             {
                 Variable.E.Cast();
             }
 
-            if (!Variable.Config.Item("HMinions").GetValue<bool>() || Variable.Config.Item("SupportMode").GetValue<bool>())
+            if (!Variable.Config.SubMenu("Harass").Item("HMinions").GetValue<bool>() ||
+                Variable.Config.SubMenu("Misc").Item("SupportMode").GetValue<bool>())
             {
                 return;
             }
@@ -110,8 +118,8 @@ namespace Kayle
             var allMinionsQ = MinionManager.GetMinions(Variable.Player.ServerPosition, Variable.Q.Range);
             var allMinionsE = MinionManager.GetMinions(Variable.Player.ServerPosition, Variable.E.Range + 150);
 
-            var useQi = Variable.Config.Item("UseQF").GetValue<StringList>().SelectedIndex;
-            var useEi = Variable.Config.Item("UseEF").GetValue<StringList>().SelectedIndex;
+            var useQi = Variable.Config.SubMenu("Farm").Item("UseQF").GetValue<StringList>().SelectedIndex;
+            var useEi = Variable.Config.SubMenu("Farm").Item("UseEF").GetValue<StringList>().SelectedIndex;
             var useQ = (laneClear && (useQi == 1 || useQi == 2)) || (!laneClear && (useQi == 0 || useQi == 2));
             var useE = (laneClear && (useEi == 1 || useEi == 2)) || (!laneClear && (useEi == 0 || useEi == 2));
 
@@ -121,7 +129,7 @@ namespace Kayle
                                                                    minion.Health <
                                                                    Variable.Player.GetSpellDamage(minion, SpellSlot.Q)))
                 {
-                    Variable.Q.Cast(minion, Variable.Config.Item("UsePackets").GetValue<bool>());
+                    Variable.Q.Cast(minion, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
             }
             if (!useE || !Variable.E.IsReady())
@@ -163,8 +171,8 @@ namespace Kayle
 
         public static void JungleFarm()
         {
-            var useQ = Variable.Config.Item("UseQJ").GetValue<bool>();
-            var useE = Variable.Config.Item("UseEJ").GetValue<bool>();
+            var useQ = Variable.Config.SubMenu("JungleFarm").Item("UseQJ").GetValue<bool>();
+            var useE = Variable.Config.SubMenu("JungleFarm").Item("UseEJ").GetValue<bool>();
 
             var mobs = MinionManager.GetMinions(Variable.Player.ServerPosition, Variable.W.Range, MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
@@ -176,7 +184,7 @@ namespace Kayle
             var mob = mobs[0];
             if (useQ && Variable.Q.IsReady())
             {
-                Variable.Q.Cast(mob, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.Q.Cast(mob, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
             if (useE && Variable.E.IsReady())
@@ -188,15 +196,20 @@ namespace Kayle
         public static void Ultimate()
         {
             foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
-                .Where(ally => ally.IsAlly && !ally.IsDead && Variable.Player.CountEnemysInRange(1000) > 0)
-                let menuItem = Variable.Config.Item("Ult" + ally.ChampionName).GetValue<bool>()
+                .Where(ally => ally.IsAlly && !ally.IsDead && Variable.Player.CountEnemiesInRange(1000) > 0)
+                let menuItem =
+                    Variable.Config.SubMenu("Ultimate")
+                        .SubMenu("Allies")
+                        .Item("Ult" + ally.ChampionName)
+                        .GetValue<bool>()
                 where
                     menuItem &&
-                    Variable.Config.Item("UltMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
+                    Variable.Config.SubMenu("Ultimate").Item("UltMinHP").GetValue<Slider>().Value >=
+                    (ally.Health/ally.MaxHealth)*100 &&
                     Variable.R.IsReady() && !Variable.Player.IsRecalling()
                 select ally)
             {
-                Variable.R.Cast(ally, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.R.Cast(ally, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
         }
 
@@ -204,14 +217,16 @@ namespace Kayle
         {
             foreach (var ally in from ally in ObjectManager.Get<Obj_AI_Hero>()
                 .Where(ally => ally.IsAlly && !ally.IsDead)
-                let menuItem = Variable.Config.Item("Heal" + ally.ChampionName).GetValue<bool>()
+                let menuItem =
+                    Variable.Config.SubMenu("Heal").SubMenu("Allies").Item("Heal" + ally.ChampionName).GetValue<bool>()
                 where
                     menuItem &&
-                    Variable.Config.Item("HealMinHP").GetValue<Slider>().Value >= (ally.Health/ally.MaxHealth)*100 &&
+                    Variable.Config.SubMenu("Heal").Item("HealMinHP").GetValue<Slider>().Value >=
+                    (ally.Health/ally.MaxHealth)*100 &&
                     Variable.W.IsReady() && !Variable.Player.IsRecalling()
                 select ally)
             {
-                Variable.W.Cast(ally, Variable.Config.Item("UsePackets").GetValue<bool>());
+                Variable.W.Cast(ally, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
         }
 
@@ -246,7 +261,7 @@ namespace Kayle
         {
             foreach (var spell in Variable.SpellList)
             {
-                var menuItem = Variable.Config.Item(spell.Slot + "Range").GetValue<Circle>();
+                var menuItem = Variable.Config.SubMenu("Drawings").Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                 {
                     Utility.DrawCircle(Variable.Player.Position, spell.Range, menuItem.Color);

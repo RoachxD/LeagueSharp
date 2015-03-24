@@ -150,11 +150,11 @@ namespace Kayle
 
             Game.PrintChat("<font color=\"#00BFFF\">Kayle# -</font> <font color=\"#FFFFFF\">Loaded</font>");
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
-        private static void Game_OnGameUpdate(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (Variable.Player.IsDead)
             {
@@ -163,29 +163,29 @@ namespace Kayle
 
             if ((((Obj_AI_Base) Variable.Orbwalker.GetTarget()).IsMinion))
             {
-                Variable.Orbwalker.SetAttack(!Variable.Config.Item("SupportMode").GetValue<bool>());
+                Variable.Orbwalker.SetAttack(!Variable.Config.SubMenu("Misc").Item("SupportMode").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (Variable.Config.SubMenu("Combo").Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Internal.Combo();
             }
             else
             {
-                if (Variable.Config.Item("HarassActive").GetValue<KeyBind>().Active ||
-                    Variable.Config.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (Variable.Config.SubMenu("Harass").Item("HarassActive").GetValue<KeyBind>().Active ||
+                    Variable.Config.SubMenu("Harass").Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
                     Internal.Harass();
                 }
 
-                var laneClear = Variable.Config.Item("LaneClearActive").GetValue<KeyBind>().Active;
-                if ((laneClear || Variable.Config.Item("FreezeActive").GetValue<KeyBind>().Active) &&
-                    !Variable.Config.Item("SupportMode").GetValue<bool>())
+                var laneClear = Variable.Config.SubMenu("Farm").Item("LaneClearActive").GetValue<KeyBind>().Active;
+                if ((laneClear || Variable.Config.SubMenu("Farm").Item("FreezeActive").GetValue<KeyBind>().Active) &&
+                    !Variable.Config.SubMenu("Misc").Item("SupportMode").GetValue<bool>())
                 {
                     Internal.Farm(laneClear);
                 }
 
-                if (Variable.Config.Item("JungleFarmActive").GetValue<KeyBind>().Active)
+                if (Variable.Config.SubMenu("JungleFarm").Item("JungleFarmActive").GetValue<KeyBind>().Active)
                 {
                     Internal.JungleFarm();
                 }
@@ -201,7 +201,7 @@ namespace Kayle
 
             var target = TargetSelector.GetTarget(Variable.W.Range, TargetSelector.DamageType.Magical);
             var eDamage = 20 + ((Variable.E.Level - 1)*10) + (Variable.Player.BaseAbilityDamage*0.25);
-            if (Variable.Config.Item("ComboDamage").GetValue<bool>())
+            if (Variable.Config.SubMenu("Drawings").Item("ComboDamage").GetValue<bool>())
             {
                 Drawing.DrawText(target.Position.X, target.Position.Y, Color.White,
                     ((target.Health - Internal.ComboDamage(target))/
