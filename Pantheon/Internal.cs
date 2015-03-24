@@ -25,47 +25,47 @@ namespace Pantheon
                 return;
             }
 
-            if (Variable.Config.Item("Combo_Mode").GetValue<StringList>().SelectedIndex == 0)
+            if (Variable.Config.SubMenu("Combo").Item("ComboMode").GetValue<StringList>().SelectedIndex == 0)
             {
                 if (Variable.Q.IsReady())
                 {
-                    Variable.Q.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.Q.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
 
                 if (Variable.W.IsReady())
                 {
-                    Variable.W.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.W.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
 
                 if (Variable.E.IsReady() && !Variable.W.IsReady())
                 {
-                    Variable.E.Cast(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.E.Cast(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
             }
             else
             {
                 if (Variable.Q.IsReady())
                 {
-                    Variable.Q.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.Q.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
 
                 if (Variable.W.IsReady())
                 {
-                    Variable.W.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.W.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
 
                 if (Variable.E.IsReady() && target.IsImmovable)
                 {
-                    Variable.E.Cast(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.E.Cast(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
             }
 
-            if (Variable.Config.Item("Combo_Items").GetValue<bool>())
+            if (Variable.Config.SubMenu("Combo").Item("ComboItems").GetValue<bool>())
             {
                 UseItems(target);
             }
 
-            if (Variable.Config.Item("Auto_Smite").GetValue<bool>())
+            if (Variable.Config.SubMenu("Combo").Item("AutoSmite").GetValue<bool>())
             {
                 if (Variable.SmiteSlot != SpellSlot.Unknown &&
                     Variable.Player.Spellbook.CanUseSpell(Variable.SmiteSlot) == SpellState.Ready)
@@ -83,7 +83,7 @@ namespace Pantheon
                 return;
             }
 
-            if (Variable.Config.Item("Auto_Ignite").GetValue<StringList>().SelectedIndex == 1)
+            if (Variable.Config.SubMenu("Combo").Item("AutoIgnite").GetValue<StringList>().SelectedIndex == 1)
             {
                 if (Variable.Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) >= target.Health)
                 {
@@ -108,30 +108,30 @@ namespace Pantheon
                 return;
             }
 
-            var mana = Variable.Player.MaxMana*(Variable.Config.Item("Harass_Mana").GetValue<Slider>().Value/100.0);
+            var mana = Variable.Player.MaxMana*(Variable.Config.SubMenu("Harass").Item("HarassMana").GetValue<Slider>().Value/100.0);
             if (!(Variable.Player.Mana > mana))
             {
                 return;
             }
 
-            var menuItem = Variable.Config.Item("Harass_Mode").GetValue<StringList>().SelectedIndex;
+            var menuItem = Variable.Config.SubMenu("Harass").Item("HarassMode").GetValue<StringList>().SelectedIndex;
             switch (menuItem)
             {
                 case 0:
                     if (Variable.Q.IsReady())
                     {
-                        Variable.Q.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                        Variable.Q.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     }
                     break;
                 case 1:
                     if (Variable.W.IsReady())
                     {
-                        Variable.W.CastOnUnit(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                        Variable.W.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     }
 
                     if (!Variable.W.IsReady() && Variable.E.IsReady())
                     {
-                        Variable.E.Cast(target, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                        Variable.E.Cast(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     }
                     break;
             }
@@ -145,28 +145,28 @@ namespace Pantheon
             }
 
             var minions = MinionManager.GetMinions(Variable.Player.ServerPosition, Variable.Q.Range);
-            var mana = Variable.Player.MaxMana*(Variable.Config.Item("Farm_Mana").GetValue<Slider>().Value/100.0);
+            var mana = Variable.Player.MaxMana*(Variable.Config.SubMenu("Farm").Item("FarmMana").GetValue<Slider>().Value/100.0);
             if (!(Variable.Player.Mana > mana))
             {
                 return;
             }
 
-            if (Variable.Config.Item("Farm_Q").GetValue<bool>() && Variable.Q.IsReady())
+            if (Variable.Config.SubMenu("Farm").Item("FarmQ").GetValue<bool>() && Variable.Q.IsReady())
             {
                 foreach (var minion in minions.Where(unit => unit.Health <= Variable.Q.GetDamage(unit)))
                 {
-                    Variable.Q.CastOnUnit(minion, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                    Variable.Q.CastOnUnit(minion, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     return;
                 }
             }
-            if (!Variable.Config.Item("Farm_W").GetValue<bool>() || !Variable.W.IsReady())
+            if (!Variable.Config.SubMenu("Farm").Item("FarmW").GetValue<bool>() || !Variable.W.IsReady())
             {
                 return;
             }
 
             foreach (var minion in minions.Where(unit => unit.Health <= Variable.W.GetDamage(unit)))
             {
-                Variable.W.CastOnUnit(minion, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                Variable.W.CastOnUnit(minion, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 return;
             }
         }
@@ -191,19 +191,19 @@ namespace Pantheon
                 return;
             }
 
-            if (Variable.Config.Item("Jungle_Q").GetValue<bool>() && Variable.Q.IsReady())
+            if (Variable.Config.SubMenu("Jungle").Item("JungleQ").GetValue<bool>() && Variable.Q.IsReady())
             {
-                Variable.Q.CastOnUnit(mob, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                Variable.Q.CastOnUnit(mob, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("Jungle_W").GetValue<bool>() && Variable.W.IsReady())
+            if (Variable.Config.SubMenu("Jungle").Item("JungleW").GetValue<bool>() && Variable.W.IsReady())
             {
-                Variable.W.CastOnUnit(mob, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                Variable.W.CastOnUnit(mob, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
 
-            if (Variable.Config.Item("Jungle_E").GetValue<bool>() && Variable.E.IsReady())
+            if (Variable.Config.SubMenu("Jungle").Item("JungleE").GetValue<bool>() && Variable.E.IsReady())
             {
-                Variable.E.Cast(mob, Variable.Config.Item("Use_Packets").GetValue<bool>());
+                Variable.E.Cast(mob, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
             }
         }
 
@@ -291,9 +291,9 @@ namespace Pantheon
 
         public static void ComboModeSwitch()
         {
-            var comboMode = Variable.Config.Item("Combo_Mode", true).GetValue<StringList>().SelectedIndex;
+            var comboMode = Variable.Config.SubMenu("Combo").Item("ComboMode").GetValue<StringList>().SelectedIndex;
             var lasttime = Environment.TickCount - _lastTick;
-            if (!Variable.Config.Item("Combo_Switch", true).GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+            if (!Variable.Config.SubMenu("Combo").Item("ComboSwitch").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
             {
                 return;
             }
@@ -301,7 +301,7 @@ namespace Pantheon
             switch (comboMode)
             {
                 case 0:
-                    Variable.Config.Item("Combo_mode", true)
+                    Variable.Config.SubMenu("Combo").Item("ComboMode")
                         .SetValue(
                             new StringList(
                                 new[]
@@ -312,14 +312,14 @@ namespace Pantheon
                     _lastTick = Environment.TickCount + 300;
                     break;
                 case 1:
-                    Variable.Config.Item("Combo_mode", true)
+                    Variable.Config.SubMenu("Combo").Item("ComboMode")
                         .SetValue(
                             new StringList(
                                 new[]
                                 {
                                     "Normal (Q-W-E with No Restrictions)",
                                     "Ganking (W-E-Q - Will not E untill target stunned)"
-                                }, 0));
+                                }));
                     _lastTick = Environment.TickCount + 300;
                     break;
             }
