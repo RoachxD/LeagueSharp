@@ -44,7 +44,7 @@ namespace Pantheon
             }
             else
             {
-                if (Variable.Q.IsReady())
+                if (Variable.Q.IsReady() && !Variable.W.IsReady())
                 {
                     Variable.Q.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
