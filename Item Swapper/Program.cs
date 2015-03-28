@@ -12,8 +12,8 @@ namespace Item_Swapper
 {
     internal class Program
     {
-        private static byte _firstKey = 0x60;
-        private static readonly byte[] Keys = {0x64, 0x65, 0x66, 0x61, 0x62, 0x63};
+        private static int _firstKey = 0x60;
+        private static readonly int[] Keys = {0x64, 0x65, 0x66, 0x61, 0x62, 0x63};
 
         private static void Main(string[] args)
         {
@@ -43,7 +43,7 @@ namespace Item_Swapper
                 return;
             }
 
-            var key = (byte) args.WParam;
+            var key = (int) args.WParam;
             if (_firstKey == 0x60)
             {
                 _firstKey = key;
@@ -53,6 +53,7 @@ namespace Item_Swapper
             {
                 return;
             }
+
 
             ObjectManager.Player.SwapItem(Array.IndexOf(Keys, _firstKey), Array.IndexOf(Keys, key));
             _firstKey = 0x60;
