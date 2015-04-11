@@ -54,7 +54,6 @@ namespace Item_Swapper
                 return;
             }
 
-
             ObjectManager.Player.SwapItem(Array.IndexOf(Keys, _firstKey), Array.IndexOf(Keys, key));
             _firstKey = 0x60;
         }

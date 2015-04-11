@@ -217,7 +217,8 @@ namespace Pantheon
 
             foreach (
                 var spell in
-                    Variable.Spells.Where(spell => Variable.Config.SubMenu("Drawing").Item("Draw" + spell.Slot).GetValue<Circle>().Active)
+                    Variable.Spells.Where(
+                        spell => Variable.Config.SubMenu("Drawing").Item("Draw" + spell.Slot).GetValue<Circle>().Active)
                 )
             {
                 Utility.DrawCircle(Variable.Player.Position, spell.Range,

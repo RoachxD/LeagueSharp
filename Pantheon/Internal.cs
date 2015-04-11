@@ -54,7 +54,7 @@ namespace Pantheon
                     Variable.W.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
 
-                if (Variable.E.IsReady() && target.IsImmovable)
+                if (Variable.E.IsReady() && !target.CanMove)
                 {
                     Variable.E.Cast(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                 }
@@ -108,7 +108,8 @@ namespace Pantheon
                 return;
             }
 
-            var mana = Variable.Player.MaxMana*(Variable.Config.SubMenu("Harass").Item("HarassMana").GetValue<Slider>().Value/100.0);
+            var mana = Variable.Player.MaxMana*
+                       (Variable.Config.SubMenu("Harass").Item("HarassMana").GetValue<Slider>().Value/100.0);
             if (!(Variable.Player.Mana > mana))
             {
                 return;
@@ -120,13 +121,15 @@ namespace Pantheon
                 case 0:
                     if (Variable.Q.IsReady())
                     {
-                        Variable.Q.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
+                        Variable.Q.CastOnUnit(target,
+                            Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     }
                     break;
                 case 1:
                     if (Variable.W.IsReady())
                     {
-                        Variable.W.CastOnUnit(target, Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
+                        Variable.W.CastOnUnit(target,
+                            Variable.Config.SubMenu("Misc").Item("UsePackets").GetValue<bool>());
                     }
 
                     if (!Variable.W.IsReady() && Variable.E.IsReady())
@@ -145,7 +148,8 @@ namespace Pantheon
             }
 
             var minions = MinionManager.GetMinions(Variable.Player.ServerPosition, Variable.Q.Range);
-            var mana = Variable.Player.MaxMana*(Variable.Config.SubMenu("Farm").Item("FarmMana").GetValue<Slider>().Value/100.0);
+            var mana = Variable.Player.MaxMana*
+                       (Variable.Config.SubMenu("Farm").Item("FarmMana").GetValue<Slider>().Value/100.0);
             if (!(Variable.Player.Mana > mana))
             {
                 return;
@@ -293,7 +297,8 @@ namespace Pantheon
         {
             var comboMode = Variable.Config.SubMenu("Combo").Item("ComboMode").GetValue<StringList>().SelectedIndex;
             var lasttime = Environment.TickCount - _lastTick;
-            if (!Variable.Config.SubMenu("Combo").Item("ComboSwitch").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+            if (!Variable.Config.SubMenu("Combo").Item("ComboSwitch").GetValue<KeyBind>().Active ||
+                lasttime <= Game.Ping)
             {
                 return;
             }
