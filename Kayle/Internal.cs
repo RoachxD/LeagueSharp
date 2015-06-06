@@ -137,10 +137,12 @@ namespace Kayle
 
             if (laneClear)
             {
-                foreach (var minion in allMinionsE.Where(minion => Variable.Player.Distance(minion) <= Variable.E.Range)
-                    )
+                foreach (var minion in allMinionsE)
                 {
-                    Variable.E.Cast();
+                    if (Variable.Player.Distance(minion) <= Variable.E.Range)
+                    {
+                        Variable.E.Cast();
+                    }
                 }
 
                 foreach (var minion in allMinionsE
@@ -156,13 +158,12 @@ namespace Kayle
             }
             else
             {
-                foreach (var minion in allMinionsE
-                    .Where(
-                        minion =>
-                            !Orbwalking.InAutoAttackRange(minion) &&
-                            !Variable.RighteousFuryActive))
+                foreach (var minion in allMinionsE)
                 {
-                    Variable.E.Cast();
+                    if (!Orbwalking.InAutoAttackRange(minion) && !Variable.RighteousFuryActive)
+                    {
+                        Variable.E.Cast();
+                    }
                 }
             }
         }
