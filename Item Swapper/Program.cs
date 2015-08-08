@@ -1,12 +1,8 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
-
-#endregion
 
 namespace Item_Swapper
 {
@@ -26,7 +22,7 @@ namespace Item_Swapper
 
         private static void Game_OnGameLoad()
         {
-            Game.PrintChat("<font color=\"#00BFFF\">Item Swapper# -</font> <font color=\"#FFFFFF\">Loaded</font>");
+            Game.PrintChat("<font color=\"#D2444A\">Item Swapper# -</font> <font color=\"#FFFFFF\">Loaded</font>");
 
             Game.OnWndProc += Game_OnWndProc;
         }

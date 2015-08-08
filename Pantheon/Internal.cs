@@ -1,11 +1,7 @@
-﻿#region
-
-using System;
+﻿using System;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-
-#endregion
 
 namespace Pantheon
 {
@@ -252,8 +248,8 @@ namespace Pantheon
                 return;
             }
 
-            Int16[] targetedItems = {3188, 3153, 3144, 3128, 3146, 3184};
-            Int16[] nonTargetedItems = {3180, 3131, 3074, 3077, 3142};
+            short[] targetedItems = {3188, 3153, 3144, 3128, 3146, 3184};
+            short[] nonTargetedItems = {3180, 3131, 3074, 3077, 3142};
 
             foreach (var itemId in targetedItems.Where(itemId => Items.HasItem(itemId) && Items.CanUseItem(itemId)))
             {
@@ -281,7 +277,7 @@ namespace Pantheon
             foreach (
                 var spell in
                     ObjectManager.Player.Spellbook.Spells.Where(
-                        spell => String.Equals(spell.Name, SmiteType(), StringComparison.CurrentCultureIgnoreCase)))
+                        spell => string.Equals(spell.Name, SmiteType(), StringComparison.CurrentCultureIgnoreCase)))
             {
                 Variable.SmiteSlot = spell.Slot;
                 break;

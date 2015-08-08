@@ -1,13 +1,9 @@
-#region
-
 using System;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
-
-#endregion
 
 namespace Pantheon
 {
@@ -24,7 +20,7 @@ namespace Pantheon
 
         private static void Game_OnGameLoad()
         {
-            if (Variable.Player.BaseSkinName != Variable.CharName)
+            if (Variable.Player.CharData.BaseSkinName != Variable.CharName)
             {
                 return;
             }
@@ -151,7 +147,7 @@ namespace Pantheon
             Game.OnUpdate += Game_OnGameUpdate;
             Interrupter2.OnInterruptableTarget += Interrupter_OnPossibleToInterrupt;
 
-            Game.PrintChat("<font color=\"#00BFFF\">Pantheon# -</font> <font color=\"#FFFFFF\">Loaded</font>");
+            Game.PrintChat("<font color=\"#D2444A\">Pantheon# -</font> <font color=\"#FFFFFF\">Loaded</font>");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
