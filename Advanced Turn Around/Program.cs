@@ -40,8 +40,6 @@ namespace Advanced_Turn_Around
                 "<font color=\"#FF440A\">Advanced Turn Around# -</font> <font color=\"#FFFFFF\">Loaded</font>");
 
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-
-            Orbwalking.Attack = false;
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
