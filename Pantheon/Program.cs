@@ -40,8 +40,6 @@ namespace Pantheon
 
             Variable.Config.AddSubMenu(new Menu("Combo Settings", "Combo"));
             Variable.Config.SubMenu("Combo")
-                .AddItem(new MenuItem("ComboKey", "Full Combo Key").SetValue(new KeyBind(32, KeyBindType.Press)));
-            Variable.Config.SubMenu("Combo")
                 .AddItem(
                     new MenuItem("ComboMode", "Combo Mode").SetValue(
                         new StringList(new[]
@@ -67,10 +65,6 @@ namespace Pantheon
 
             Variable.Config.AddSubMenu(new Menu("Harass Settings", "Harass"));
             Variable.Config.SubMenu("Harass")
-                .AddItem(
-                    new MenuItem("HarassKey", "Harass Key").SetValue(new KeyBind("C".ToCharArray()[0],
-                        KeyBindType.Press)));
-            Variable.Config.SubMenu("Harass")
                 .AddItem(new MenuItem("HarassMode", "Harass Mode: ").SetValue(new StringList(new[] {"Q", "W+E"})));
             Variable.Config.SubMenu("Harass")
                 .AddItem(
@@ -82,9 +76,6 @@ namespace Pantheon
                 .AddItem(new MenuItem("HarassMana", "Min. Mana Percent: ").SetValue(new Slider(50)));
 
             Variable.Config.AddSubMenu(new Menu("Farming Settings", "Farm"));
-            Variable.Config.SubMenu("Farm")
-                .AddItem(
-                    new MenuItem("FarmKey", "Farming Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
             Variable.Config.SubMenu("Farm").AddItem(new MenuItem("FarmQ", "Farm with Spear Shot (Q)").SetValue(true));
             Variable.Config.SubMenu("Farm")
                 .AddItem(new MenuItem("FarmW", "Farm with Aegis of Zeonia (W)").SetValue(true));
@@ -92,10 +83,6 @@ namespace Pantheon
                 .AddItem(new MenuItem("FarmMana", "Min. Mana Percent: ").SetValue(new Slider(50)));
 
             Variable.Config.AddSubMenu(new Menu("Jungle Clear Settings", "Jungle"));
-            Variable.Config.SubMenu("Jungle")
-                .AddItem(
-                    new MenuItem("JungleKey", "Jungle Clear Key").SetValue(new KeyBind("V".ToCharArray()[0],
-                        KeyBindType.Press)));
             Variable.Config.SubMenu("Jungle")
                 .AddItem(new MenuItem("JungleQ", "Farm with Spear Shot (Q)").SetValue(true));
             Variable.Config.SubMenu("Jungle")
@@ -160,10 +147,10 @@ namespace Pantheon
             Internal.ComboModeSwitch();
 
             var target = TargetSelector.GetTarget(Variable.Q.Range, TargetSelector.DamageType.Physical);
-            var comboKey = Variable.Config.SubMenu("Combo").Item("ComboKey").GetValue<KeyBind>().Active;
-            var harassKey = Variable.Config.SubMenu("Harass").Item("HarassKey").GetValue<KeyBind>().Active;
-            var farmKey = Variable.Config.SubMenu("Farm").Item("FarmKey").GetValue<KeyBind>().Active;
-            var jungleClearKey = Variable.Config.SubMenu("Jungle").Item("JungleKey").GetValue<KeyBind>().Active;
+            var comboKey = Variable.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo;
+            var harassKey = Variable.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed;
+            var farmKey = Variable.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear;
+            var jungleClearKey = Variable.Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear;
 
             Variable.Orbwalker.SetAttack(!Internal.UsingEorR());
             Variable.Orbwalker.SetMovement(!Internal.UsingEorR());
