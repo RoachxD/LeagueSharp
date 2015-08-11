@@ -1,10 +1,6 @@
-﻿#region
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LeagueSharp;
 using LeagueSharp.Common;
-
-#endregion
 
 namespace Advanced_Turn_Around
 {

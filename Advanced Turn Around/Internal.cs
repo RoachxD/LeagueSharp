@@ -1,8 +1,4 @@
-﻿#region
-
-using System;
-
-#endregion
+﻿using System;
 
 namespace Advanced_Turn_Around
 {
@@ -15,19 +11,10 @@ namespace Advanced_Turn_Around
                 {
                     CharName = "Cassiopeia",
                     Key = "CassiopeiaPetrifyingGaze",
-                    Range = 750,
+                    Range = 1000,
                     SpellName = "Petrifying Gaze (R)",
-                    Movement = Variable.MovementDirection.Backward
-                });
-
-            Variable.ExistingChampions.Add(
-                new ChampionInfo
-                {
-                    CharName = "Shaco",
-                    Key = "TwoShivPoison",
-                    Range = 625,
-                    SpellName = "Two-Shiv Poison (E)",
-                    Movement = Variable.MovementDirection.Forward
+                    Movement = Variable.MovementDirection.Backward,
+                    CastTime = 1.5f
                 });
 
             Variable.ExistingChampions.Add(
@@ -35,9 +22,10 @@ namespace Advanced_Turn_Around
                 {
                     CharName = "Tryndamere",
                     Key = "MockingShout",
-                    Range = 850,
+                    Range = 900,
                     SpellName = "Mocking Shout (W)",
-                    Movement = Variable.MovementDirection.Forward
+                    Movement = Variable.MovementDirection.Forward,
+                    CastTime = 0.65f
                 });
         }
 
@@ -61,6 +49,7 @@ namespace Advanced_Turn_Around
             public float Range { get; set; }
             public string SpellName { get; set; }
             public Variable.MovementDirection Movement { get; set; }
+            public float CastTime { get; set; }
         }
     }
 }

@@ -1,12 +1,7 @@
-﻿#region
-
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-
-#endregion
 
 namespace Advanced_Turn_Around
 {
@@ -25,7 +20,7 @@ namespace Advanced_Turn_Around
         {
             Internal.AddChampions();
 
-            Variable.Config = new Menu("Advanced Turn Around", "ATA", true);
+            Variable.Config = new Menu("Roach's Advanced Turn Around#", "ATA", true);
 
             Variable.Config.AddItem(new MenuItem("Enabled", "Enable the Script").SetValue(true));
 
@@ -42,38 +37,47 @@ namespace Advanced_Turn_Around
             Variable.Config.AddToMainMenu();
 
             Game.PrintChat(
-                "<font color=\"#00BFFF\">Advanced Turn Around# -</font> <font color=\"#FFFFFF\">Loaded</font>");
+                "<font color=\"#FF440A\">Advanced Turn Around# -</font> <font color=\"#FFFFFF\">Loaded</font>");
 
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+
+            Orbwalking.Attack = false;
         }
 
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!Variable.Config.Item("Enabled").GetValue<bool>() ||
-                (Variable.Player.ChampionName == "Teemo" && !Variable.Player.IsTargetable) ||
+            if (!Variable.Config.Item("Enabled").GetValue<bool>() || !Variable.Player.IsTargetable ||
                 (sender == null || sender.Team == Variable.Player.Team))
             {
                 return;
             }
 
-            foreach (var vector in from champ in Variable.ExistingChampions
-                where
-                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName) != null) &&
-                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key) != null) &&
-                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>())
-                where
-                    args.SData.Name.Contains(champ.Key) &&
-                    (Variable.Player.Distance(sender.Position) <= champ.Range || args.Target == Variable.Player)
-                select
+            foreach (var champ in Variable.ExistingChampions)
+            {
+                if ((Variable.Config.SubMenu("CAS").SubMenu(champ.CharName) == null) ||
+                    (Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key) == null) ||
+                    (!Variable.Config.SubMenu("CAS").SubMenu(champ.CharName).Item(champ.Key).GetValue<bool>()))
+                {
+                    continue;
+                }
+
+                if (!args.SData.Name.Contains(champ.Key) ||
+                    (!(Variable.Player.Distance(sender.Position) <= champ.Range) && args.Target != Variable.Player))
+                {
+                    continue;
+                }
+
+                var vector =
                     new Vector3(
                         Variable.Player.Position.X +
                         ((sender.Position.X - Variable.Player.Position.X)*(Internal.MoveTo(champ.Movement))/
                          Variable.Player.Distance(sender.Position)),
                         Variable.Player.Position.Y +
                         ((sender.Position.Y - Variable.Player.Position.Y)*(Internal.MoveTo(champ.Movement))/
-                         Variable.Player.Distance(sender.Position)), 0))
-            {
+                         Variable.Player.Distance(sender.Position)), 0);
                 Variable.Player.IssueOrder(GameObjectOrder.MoveTo, vector);
+                Orbwalking.Move = false;
+                Utility.DelayAction.Add((int) (champ.CastTime + 0.1)*1000, () => Orbwalking.Move = true);
             }
         }
     }
