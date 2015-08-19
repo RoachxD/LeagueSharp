@@ -24,4 +24,7 @@ Utility Scripts:
     * 1 - Item Slot 4
     * 2 - Item Slot 5
     * 3 - Item Slot 6
-    * 0 - Reset 
+    * 0 - Reset
+
+* Stun Alerter
+  * It shows you if someone in the enemy team has any spell Available to Interrupt you.
