@@ -37,5 +37,7 @@ namespace Stun_Alerter
 
         public static Dictionary<string, List<SpellSlot>> StunSpells = new Dictionary<string, List<SpellSlot>>();
         public static Menu Config { get; set; }
+        public static Obj_AI_Hero Player = ObjectManager.Player;
+        public static int LastPing = 0;
     }
 }

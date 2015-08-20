@@ -30,8 +30,10 @@ namespace Stun_Alerter
             Variable.Config.SubMenu("Settings")
                 .AddItem(
                     new MenuItem("Mode", "Mode: ").SetValue(new StringList(new[] {"In Range", "All over the map"}, 1)));
+            Variable.Config.SubMenu("Settings")
+                .AddItem(new MenuItem("Pings", "Ping when all Stuns are Unavailable").SetValue(true));
             Variable.Config.AddSubMenu(new Menu("Spells", "Spells"));
-            HeroManager.AllHeroes.ForEach(
+            HeroManager.Enemies.ForEach(
                 hero =>
                 {
                     if (!Variable.StunSpells.ContainsKey(hero.ChampionName))
@@ -61,7 +63,7 @@ namespace Stun_Alerter
             Variable.Config.SubMenu("Drawings").AddSubMenu(new Menu("Colors", "Colors"));
             Variable.Config.SubMenu("Drawings")
                 .SubMenu("Colors")
-                .AddItem(new MenuItem("Title", "Title").SetValue(Color.FromArgb(255, 139, 0, 0)));
+                .AddItem(new MenuItem("Title", "Title").SetValue(Color.FromArgb(255, 152, 39, 210)));
             Variable.Config.SubMenu("Drawings")
                 .SubMenu("Colors")
                 .AddItem(new MenuItem("Champions", "Champions").SetValue(Color.FromArgb(255, 255, 255, 255)));
@@ -74,16 +76,49 @@ namespace Stun_Alerter
             Variable.Config.SubMenu("Drawings")
                 .SubMenu("Colors")
                 .AddItem(new MenuItem("StatusU", "Status: Unavailable").SetValue(Color.FromArgb(255, 128, 128, 128)));
+            Variable.Config.SubMenu("Drawings")
+                .SubMenu("Colors")
+                .AddItem(new MenuItem("Range", "Range Circle").SetValue(Color.FromArgb(255, 255, 255, 255)));
             Variable.Config.SubMenu("Drawings").AddItem(new MenuItem("DisableAll", "Disable All").SetValue(false));
             Variable.Config.SubMenu("Drawings").AddItem(new MenuItem("Title", "Draw Title").SetValue(true));
             Variable.Config.SubMenu("Drawings").AddItem(new MenuItem("Spells", "Draw Spells").SetValue(true));
             Variable.Config.SubMenu("Drawings").AddItem(new MenuItem("Status", "Draw Spells' Status").SetValue(true));
+            Variable.Config.SubMenu("Drawings").AddItem(new MenuItem("Range", "Draw Range").SetValue(true));
 
             Variable.Config.AddToMainMenu();
 
+            Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
 
-            Game.PrintChat("<font color=\"#CC0000\">Stun Alerter# -</font> <font color=\"#FFFFFF\">Loaded</font>");
+            Game.PrintChat("<font color=\"#9827D2\">Stun Alerter# -</font> <font color=\"#FFFFFF\">Loaded</font>");
+        }
+
+        private static void Game_OnUpdate(EventArgs args)
+        {
+            var pings = Variable.Config.SubMenu("Settings").Item("Pings").GetValue<bool>();
+            if (!pings)
+            {
+                return;
+            }
+
+            if (
+                HeroManager.Enemies.All(
+                    hero =>
+                        Variable.StunSpells.ContainsKey(hero.ChampionName) &&
+                        Variable.StunSpells[hero.ChampionName].All(
+                            spell =>
+                                (!hero.CanStun(spell) &&
+                                 Variable.Config.SubMenu("Spells")
+                                     .SubMenu(hero.ChampionName)
+                                     .Item(hero.ChampionName + spell.ToString())
+                                     .GetValue<bool>()) ||
+                                !Variable.Config.SubMenu("Spells")
+                                    .SubMenu(hero.ChampionName)
+                                    .Item(hero.ChampionName + spell.ToString())
+                                    .GetValue<bool>())))
+            {
+                Internal.Ping(Variable.Player.Position.To2D());
+            }
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -105,7 +140,9 @@ namespace Stun_Alerter
             }
 
             var extraPosY = 12;
-            HeroManager.AllHeroes.ForEach(
+            var range = Variable.Config.SubMenu("Settings").Item("Range").GetValue<Slider>().Value;
+            var mode = Variable.Config.SubMenu("Settings").Item("Mode").GetValue<StringList>().SelectedIndex;
+            HeroManager.Enemies.ForEach(
                 hero =>
                 {
                     if (!Variable.StunSpells.ContainsKey(hero.ChampionName))
@@ -113,9 +150,7 @@ namespace Stun_Alerter
                         return;
                     }
 
-                    var range = Variable.Config.SubMenu("Settings").Item("Range").GetValue<Slider>().Value;
-                    var mode = Variable.Config.SubMenu("Settings").Item("Mode").GetValue<StringList>().SelectedIndex;
-                    if ((mode == 0 && hero.Distance(ObjectManager.Player) > range) || hero.IsDead)
+                    if ((mode == 0 && hero.Distance(Variable.Player) > range) || hero.IsDead)
                     {
                         return;
                     }
@@ -167,6 +202,13 @@ namespace Stun_Alerter
 
                     extraPosY += 12;
                 });
+
+            var rangeDraw = Variable.Config.SubMenu("Drawings").Item("Range").GetValue<bool>();
+            if (rangeDraw && mode == 1)
+            {
+                var rangeColor = Variable.Config.SubMenu("Drawings").SubMenu("Colors").Item("Range").GetValue<Color>();
+                Utility.DrawCircle(Variable.Player.Position, range, rangeColor, 1, 23, true);
+            }
         }
     }
 }
