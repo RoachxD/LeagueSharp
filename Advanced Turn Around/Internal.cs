@@ -1,4 +1,5 @@
 ﻿using System;
+using LeagueSharp;
 
 namespace Advanced_Turn_Around
 {
@@ -10,7 +11,7 @@ namespace Advanced_Turn_Around
                 new ChampionInfo
                 {
                     CharName = "Cassiopeia",
-                    Key = "CassiopeiaPetrifyingGaze",
+                    Slot = SpellSlot.R,
                     Range = 1000,
                     SpellName = "Petrifying Gaze (R)",
                     Movement = Variable.MovementDirection.Backward,
@@ -21,7 +22,7 @@ namespace Advanced_Turn_Around
                 new ChampionInfo
                 {
                     CharName = "Tryndamere",
-                    Key = "MockingShout",
+                    Slot = SpellSlot.W,
                     Range = 900,
                     SpellName = "Mocking Shout (W)",
                     Movement = Variable.MovementDirection.Forward,
@@ -45,7 +46,7 @@ namespace Advanced_Turn_Around
         public class ChampionInfo
         {
             public string CharName { get; set; }
-            public string Key { get; set; }
+            public SpellSlot Slot { get; set; }
             public float Range { get; set; }
             public string SpellName { get; set; }
             public Variable.MovementDirection Movement { get; set; }
