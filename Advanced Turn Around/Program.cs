@@ -20,7 +20,7 @@ namespace Advanced_Turn_Around
         {
             Internal.AddChampions();
 
-            Variable.Config = new Menu("Roach's Advanced Turn Around#", "ATA", true);
+            Variable.Config = new Menu("Roach's Turn Around#", "ATA", true);
 
             Variable.Config.AddItem(new MenuItem("Enabled", "Enable the Script").SetValue(true));
 
